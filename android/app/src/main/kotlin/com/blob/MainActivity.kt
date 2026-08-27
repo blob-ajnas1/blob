@@ -1,4 +1,4 @@
-package com.agrimarket.market
+package com.blob
 
 import io.flutter.embedding.android.FlutterActivity
 

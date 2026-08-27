@@ -65,7 +65,7 @@ class PlaceMapScreen extends StatelessWidget {
                   // OSM's tile policy requires identifying the client.
                   // Must match the real applicationId in
                   // android/app/build.gradle.kts, or OSM cannot identify us.
-                  userAgentPackageName: 'com.blob.blob',
+                  userAgentPackageName: 'com.blob',
                   maxZoom: 19,
                 ),
                 MarkerLayer(

@@ -120,8 +120,7 @@ class EduHomeScreen extends StatelessWidget {
 
   String _subtitleFor(DailyTaskType type) => switch (type) {
     DailyTaskType.video => _pack.video.title,
-    DailyTaskType.games =>
-      '${_pack.mathTitle}, ${_pack.matchTitle}, ${_pack.orderTitle}',
+    DailyTaskType.games => _pack.mathSubtitle,
     DailyTaskType.quiz => _pack.quizSubject,
   };
 

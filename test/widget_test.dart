@@ -682,15 +682,9 @@ void main() {
         pack.video.summary,
         pack.mathTitle,
         pack.mathSubtitle,
-        pack.matchTitle,
-        pack.matchSubtitle,
-        pack.orderTitle,
-        pack.orderSubtitle,
         pack.quizSubject,
         for (final q in pack.quiz) ...[q.question, ...q.options],
         for (final r in pack.mathRounds) r.prompt,
-        for (final t in pack.termPairs) ...[t.term, t.meaning],
-        for (final o in pack.orderRounds) ...[o.prompt, ...o.ordered],
       ].join(' ').toLowerCase();
 
       for (final word in banned) {
@@ -712,12 +706,6 @@ void main() {
         expect(r.options.toSet().length, r.options.length,
             reason: 'duplicate options: ${r.prompt}');
       }
-      for (final o in pack.orderRounds) {
-        // A single-item or duplicated sequence cannot be meaningfully ordered.
-        expect(o.ordered.length, greaterThanOrEqualTo(3), reason: o.prompt);
-        expect(o.ordered.toSet().length, o.ordered.length, reason: o.prompt);
-      }
-      expect(pack.termPairs.length, greaterThanOrEqualTo(3));
     });
 
     test('switching account type can clear a marketplace specialisation', () {

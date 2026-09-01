@@ -15,9 +15,9 @@ import '../widgets/common.dart';
 
 /// Daily task 2 — play 3 interactive rounds.
 ///
-/// Three distinct mechanics rather than the same game three times: market
-/// arithmetic, term matching, and price-order sorting. Each is drawn from
-/// content a trader or student actually needs.
+/// One mechanic: exam-style arithmetic. Each of the day's rounds draws a
+/// fresh set of questions, so the task stays replayable without needing
+/// separate mini-games.
 class GamesTaskScreen extends StatefulWidget {
   /// Subject material for this track. Mechanics are identical; only the
   /// content differs, so a student never sees market or trade material.
@@ -87,15 +87,9 @@ class _GamesTaskScreenState extends State<GamesTaskScreen> {
     }
   }
 
-  Future<void> _openGame(int index) async {
+  Future<void> _openGame() async {
     final result = await Navigator.of(context).push<({int score, int outOf})>(
-      MaterialPageRoute(
-        builder: (_) => switch (index) {
-          0 => _MathGame(pack: widget.pack),
-          1 => _MatchGame(pack: widget.pack),
-          _ => _SortGame(pack: widget.pack),
-        },
-      ),
+      MaterialPageRoute(builder: (_) => _MathGame(pack: widget.pack)),
     );
     if (result == null || !mounted) return;
 
@@ -126,23 +120,6 @@ class _GamesTaskScreenState extends State<GamesTaskScreen> {
   @override
   Widget build(BuildContext context) {
     final pack = widget.pack;
-    final games = [
-      (
-        title: pack.mathTitle,
-        subtitle: pack.mathSubtitle,
-        icon: Icons.calculate_outlined,
-      ),
-      (
-        title: pack.matchTitle,
-        subtitle: pack.matchSubtitle,
-        icon: Icons.extension_outlined,
-      ),
-      (
-        title: pack.orderTitle,
-        subtitle: pack.orderSubtitle,
-        icon: Icons.swap_vert_outlined,
-      ),
-    ];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Learning games')),
@@ -193,22 +170,19 @@ class _GamesTaskScreenState extends State<GamesTaskScreen> {
               ),
             ),
             const SizedBox(height: 18),
-            for (var i = 0; i < games.length; i++) ...[
-              _GameCard(
-                title: games[i].title,
-                subtitle: games[i].subtitle,
-                icon: games[i].icon,
-                roundNumber: i + 1,
-                onTap: () => _openGame(i),
-              ),
-              const SizedBox(height: 12),
-            ],
+            _GameCard(
+              title: pack.mathTitle,
+              subtitle: pack.mathSubtitle,
+              icon: Icons.calculate_outlined,
+              onTap: _openGame,
+            ),
+            const SizedBox(height: 12),
             const SizedBox(height: 4),
             const InfoBanner(
               icon: Icons.info_outline,
               message:
-                  'You can replay any game, but each day counts a '
-                  'maximum of 3 rounds towards your points.',
+                  'You can replay as many times as you like, but each day '
+                  'counts a maximum of 3 rounds towards your points.',
             ),
             const SizedBox(height: 26),
             const SectionHeader('More games on Play Store'),
@@ -237,14 +211,12 @@ class _GameCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
-  final int roundNumber;
   final VoidCallback onTap;
 
   const _GameCard({
     required this.title,
     required this.subtitle,
     required this.icon,
-    required this.roundNumber,
     required this.onTap,
   });
 
@@ -540,346 +512,17 @@ class _MathGameState extends State<_MathGame> {
   }
 }
 
-// ---------------------------------------------------------------- Game 2
-
-/// Tap a term, then tap its meaning.
-class _MatchGame extends StatefulWidget {
-  final TaskContentPack pack;
-  const _MatchGame({required this.pack});
-
-  @override
-  State<_MatchGame> createState() => _MatchGameState();
-}
-
-class _MatchGameState extends State<_MatchGame> {
-  static const _pairCount = 4;
-
-  late List<TermPair> _pairs;
-  late List<String> _terms;
-  late List<String> _meanings;
-
-  String? _selectedTerm;
-  final Set<String> _matched = {};
-  int _mistakes = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    final all = List.of(widget.pack.termPairs)..shuffle(Random());
-    _pairs = all.take(_pairCount).toList();
-    _terms = _pairs.map((p) => p.term).toList()..shuffle(Random());
-    _meanings = _pairs.map((p) => p.meaning).toList()..shuffle(Random());
-  }
-
-  void _tapMeaning(String meaning) {
-    final term = _selectedTerm;
-    if (term == null) {
-      showSnack(context, 'Pick a term on the left first');
-      return;
-    }
-    final expected = _pairs.firstWhere((p) => p.term == term).meaning;
-    if (expected == meaning) {
-      setState(() {
-        _matched.add(term);
-        _selectedTerm = null;
-      });
-      if (_matched.length == _pairs.length) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (!mounted) return;
-          Navigator.of(
-            context,
-          ).pop((score: _pairs.length, outOf: _pairs.length + _mistakes));
-        });
-      }
-    } else {
-      setState(() {
-        _mistakes++;
-        _selectedTerm = null;
-      });
-      showSnack(context, 'Not a match — try again', error: true);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.pack.matchTitle)),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              _GameProgress(
-                current: _matched.length,
-                total: _pairs.length,
-                score: _matched.length,
-                label: 'matched',
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Tap a term, then tap its meaning',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: ListView(
-                        children: [
-                          for (final term in _terms) ...[
-                            _MatchChip(
-                              label: term,
-                              bold: true,
-                              done: _matched.contains(term),
-                              selected: _selectedTerm == term,
-                              onTap: _matched.contains(term)
-                                  ? null
-                                  : () => setState(() => _selectedTerm = term),
-                            ),
-                            const SizedBox(height: 10),
-                          ],
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ListView(
-                        children: [
-                          for (final meaning in _meanings) ...[
-                            _MatchChip(
-                              label: meaning,
-                              done: _pairs.any(
-                                (p) =>
-                                    p.meaning == meaning &&
-                                    _matched.contains(p.term),
-                              ),
-                              selected: false,
-                              onTap:
-                                  _pairs.any(
-                                    (p) =>
-                                        p.meaning == meaning &&
-                                        _matched.contains(p.term),
-                                  )
-                                  ? null
-                                  : () => _tapMeaning(meaning),
-                            ),
-                            const SizedBox(height: 10),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MatchChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final bool done;
-  final bool bold;
-  final VoidCallback? onTap;
-
-  const _MatchChip({
-    required this.label,
-    required this.selected,
-    required this.done,
-    this.bold = false,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final bg = done
-        ? AppColors.primary
-        : selected
-        ? AppColors.accentSoft
-        : AppColors.surface;
-    final fg = done ? Colors.white : AppColors.textPrimary;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: selected ? AppColors.accent : AppColors.border,
-            width: selected ? 2 : 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            height: 1.3,
-            fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
-            color: fg,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------- Game 3
-
-/// Reorder four prices from lowest to highest.
-class _SortGame extends StatefulWidget {
-  final TaskContentPack pack;
-  const _SortGame({required this.pack});
-
-  @override
-  State<_SortGame> createState() => _SortGameState();
-}
-
-class _SortGameState extends State<_SortGame> {
-  late final OrderRound _round;
-  late List<String> _items;
-
-  @override
-  void initState() {
-    super.initState();
-    _round = (List.of(widget.pack.orderRounds)..shuffle(Random())).first;
-    // Shuffle until the starting order is not already correct, otherwise the
-    // round can be won without doing anything.
-    final shuffled = List.of(_round.ordered);
-    var guard = 0;
-    do {
-      shuffled.shuffle(Random());
-      guard++;
-    } while (_sameOrder(shuffled, _round.ordered) && guard < 20);
-    _items = shuffled;
-  }
-
-  static bool _sameOrder(List<String> a, List<String> b) {
-    for (var i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
-  }
-
-  bool get _isSorted => _sameOrder(_items, _round.ordered);
-
-  void _submit() {
-    if (_isSorted) {
-      Navigator.of(context).pop((score: _items.length, outOf: _items.length));
-    } else {
-      var correct = 0;
-      for (var i = 0; i < _items.length; i++) {
-        if (_items[i] == _round.ordered[i]) correct++;
-      }
-      showSnack(
-        context,
-        'Not quite — $correct of ${_items.length} in the right place',
-        error: true,
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.pack.orderTitle)),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Text(
-                _round.prompt,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ReorderableListView(
-                  onReorder: (oldIndex, newIndex) {
-                    setState(() {
-                      if (newIndex > oldIndex) newIndex--;
-                      final item = _items.removeAt(oldIndex);
-                      _items.insert(newIndex, item);
-                    });
-                  },
-                  children: [
-                    for (final item in _items)
-                      Container(
-                        key: ValueKey(item),
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 16,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.drag_indicator,
-                              color: AppColors.textSecondary,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                item,
-                                style: const TextStyle(
-                                  fontSize: 14.5,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _submit,
-                  child: const Text('Check order'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // ---------------------------------------------------------------- Shared
 
 class _GameProgress extends StatelessWidget {
   final int current;
   final int total;
   final int score;
-  final String label;
 
   const _GameProgress({
     required this.current,
     required this.total,
     required this.score,
-    this.label = 'correct',
   });
 
   @override
@@ -899,7 +542,7 @@ class _GameProgress extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Text(
-          '$score $label',
+          '$score correct',
           style: TextStyle(
             fontSize: 12.5,
             fontWeight: FontWeight.w800,

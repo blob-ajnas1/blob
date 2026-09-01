@@ -1,9 +1,12 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../data/external_games.dart';
 import '../../data/task_content_pack.dart';
 import '../../data/models/learning.dart';
 import '../../state/learning_controller.dart';
@@ -34,8 +37,53 @@ class _GamesTaskScreenState extends State<GamesTaskScreen> {
     super.initState();
     final userId = context.read<SessionController>().user?.id;
     if (userId != null) {
-      _roundsDoneToday =
-          context.read<LearningController>().progressFor(userId).gamesPlayed;
+      _roundsDoneToday = context
+          .read<LearningController>()
+          .progressFor(userId)
+          .gamesPlayed;
+    }
+  }
+
+  /// Open an external Play Store game: try the native market:// intent
+  /// first, and fall back to the web Play Store URL if it fails or the
+  /// platform cannot handle market links (e.g. web preview, devices
+  /// without the Play Store app).
+  Future<void> _openExternalGame(ExternalGame game) async {
+    var opened = false;
+    try {
+      opened = await launchUrl(
+        game.marketUri,
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('market:// launch failed for ${game.packageName}: $e');
+      }
+      opened = false;
+    }
+
+    if (!opened) {
+      try {
+        opened = await launchUrl(
+          game.webUri,
+          mode: LaunchMode.externalApplication,
+        );
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('web store launch failed for ${game.packageName}: $e');
+        }
+        opened = false;
+      }
+    }
+
+    if (!mounted) return;
+    if (!opened) {
+      showSnack(
+        context,
+        'Could not open the store for ${game.title}. Check your internet '
+        'connection and try again.',
+        error: true,
+      );
     }
   }
 
@@ -66,11 +114,12 @@ class _GamesTaskScreenState extends State<GamesTaskScreen> {
       _roundsDoneToday = learning.progressFor(userId).gamesPlayed;
     });
     if (awarded > 0) {
-      showSnack(context,
-          'All 3 games complete — +$awarded points earned');
+      showSnack(context, 'All 3 games complete — +$awarded points earned');
     } else {
-      showSnack(context,
-          'Round saved — ${DailyTaskType.games.target - _roundsDoneToday} to go');
+      showSnack(
+        context,
+        'Round saved — ${DailyTaskType.games.target - _roundsDoneToday} to go',
+      );
     }
   }
 
@@ -109,8 +158,11 @@ class _GamesTaskScreenState extends State<GamesTaskScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.sports_esports,
-                      color: AppColors.primary, size: 28),
+                  Icon(
+                    Icons.sports_esports,
+                    color: AppColors.primary,
+                    size: 28,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -154,8 +206,25 @@ class _GamesTaskScreenState extends State<GamesTaskScreen> {
             const SizedBox(height: 4),
             const InfoBanner(
               icon: Icons.info_outline,
-              message: 'You can replay any game, but each day counts a '
+              message:
+                  'You can replay any game, but each day counts a '
                   'maximum of 3 rounds towards your points.',
+            ),
+            const SizedBox(height: 26),
+            const SectionHeader('More games on Play Store'),
+            const SizedBox(height: 10),
+            for (final game in externalGames) ...[
+              _ExternalGameCard(
+                game: game,
+                onTap: () => _openExternalGame(game),
+              ),
+              const SizedBox(height: 12),
+            ],
+            const InfoBanner(
+              icon: Icons.open_in_new,
+              message:
+                  'These open in Google Play Store. The games are '
+                  'installed separately and do not count towards daily points.',
             ),
           ],
         ),
@@ -227,6 +296,128 @@ class _GameCard extends StatelessWidget {
               ),
             ),
             const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Play Store game tile. Shown below the in-app games so the daily
+/// points flow stays the primary action on this screen.
+class _ExternalGameCard extends StatelessWidget {
+  final ExternalGame game;
+  final VoidCallback onTap;
+
+  const _ExternalGameCard({required this.game, required this.onTap});
+
+  IconData get _categoryIcon => switch (game.category) {
+    'Action / Stealth' => Icons.visibility_outlined,
+    'Arcade / Runner' => Icons.directions_run_rounded,
+    'Puzzle / Brain Teaser' => Icons.psychology_outlined,
+    _ => Icons.videogame_asset_outlined,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: AppColors.accentSoft,
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Icon(_categoryIcon, color: AppColors.accent, size: 24),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          game.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 15.5,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primarySoft,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          game.category,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    game.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      height: 1.35,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.play_arrow_rounded, color: Colors.white, size: 16),
+                  SizedBox(width: 4),
+                  Text(
+                    'Play',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -312,10 +503,10 @@ class _MathGameState extends State<_MathGame> {
                   state: _picked == null
                       ? _OptionState.idle
                       : option == round.answer
-                          ? _OptionState.correct
-                          : option == _picked
-                              ? _OptionState.wrong
-                              : _OptionState.dimmed,
+                      ? _OptionState.correct
+                      : option == _picked
+                      ? _OptionState.wrong
+                      : _OptionState.dimmed,
                   onTap: () => _pick(option),
                 ),
                 const SizedBox(height: 12),
@@ -395,10 +586,9 @@ class _MatchGameState extends State<_MatchGame> {
       if (_matched.length == _pairs.length) {
         Future.delayed(const Duration(milliseconds: 500), () {
           if (!mounted) return;
-          Navigator.of(context).pop((
-            score: _pairs.length,
-            outOf: _pairs.length + _mistakes,
-          ));
+          Navigator.of(
+            context,
+          ).pop((score: _pairs.length, outOf: _pairs.length + _mistakes));
         });
       }
     } else {
@@ -428,10 +618,7 @@ class _MatchGameState extends State<_MatchGame> {
               const SizedBox(height: 8),
               const Text(
                 'Tap a term, then tap its meaning',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),
               const SizedBox(height: 16),
               Expanded(
@@ -449,8 +636,7 @@ class _MatchGameState extends State<_MatchGame> {
                               selected: _selectedTerm == term,
                               onTap: _matched.contains(term)
                                   ? null
-                                  : () =>
-                                      setState(() => _selectedTerm = term),
+                                  : () => setState(() => _selectedTerm = term),
                             ),
                             const SizedBox(height: 10),
                           ],
@@ -464,13 +650,18 @@ class _MatchGameState extends State<_MatchGame> {
                           for (final meaning in _meanings) ...[
                             _MatchChip(
                               label: meaning,
-                              done: _pairs.any((p) =>
-                                  p.meaning == meaning &&
-                                  _matched.contains(p.term)),
+                              done: _pairs.any(
+                                (p) =>
+                                    p.meaning == meaning &&
+                                    _matched.contains(p.term),
+                              ),
                               selected: false,
-                              onTap: _pairs.any((p) =>
-                                      p.meaning == meaning &&
-                                      _matched.contains(p.term))
+                              onTap:
+                                  _pairs.any(
+                                    (p) =>
+                                        p.meaning == meaning &&
+                                        _matched.contains(p.term),
+                                  )
                                   ? null
                                   : () => _tapMeaning(meaning),
                             ),
@@ -510,8 +701,8 @@ class _MatchChip extends StatelessWidget {
     final bg = done
         ? AppColors.primary
         : selected
-            ? AppColors.accentSoft
-            : AppColors.surface;
+        ? AppColors.accentSoft
+        : AppColors.surface;
     final fg = done ? Colors.white : AppColors.textPrimary;
     return InkWell(
       onTap: onTap,
@@ -587,9 +778,11 @@ class _SortGameState extends State<_SortGame> {
       for (var i = 0; i < _items.length; i++) {
         if (_items[i] == _round.ordered[i]) correct++;
       }
-      showSnack(context,
-          'Not quite — $correct of ${_items.length} in the right place',
-          error: true);
+      showSnack(
+        context,
+        'Not quite — $correct of ${_items.length} in the right place',
+        error: true,
+      );
     }
   }
 
@@ -627,7 +820,9 @@ class _SortGameState extends State<_SortGame> {
                         key: ValueKey(item),
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 16),
+                          horizontal: 14,
+                          vertical: 16,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.surface,
                           borderRadius: BorderRadius.circular(14),
@@ -635,8 +830,11 @@ class _SortGameState extends State<_SortGame> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.drag_indicator,
-                                color: AppColors.textSecondary, size: 20),
+                            const Icon(
+                              Icons.drag_indicator,
+                              color: AppColors.textSecondary,
+                              size: 20,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
@@ -729,10 +927,26 @@ class _OptionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, border, fg) = switch (state) {
-      _OptionState.idle => (AppColors.surface, AppColors.border, AppColors.textPrimary),
-      _OptionState.correct => (AppColors.primary, AppColors.primary, Colors.white),
-      _OptionState.wrong => (AppColors.dangerSoft, AppColors.danger, AppColors.danger),
-      _OptionState.dimmed => (AppColors.background, AppColors.border, AppColors.textSecondary),
+      _OptionState.idle => (
+        AppColors.surface,
+        AppColors.border,
+        AppColors.textPrimary,
+      ),
+      _OptionState.correct => (
+        AppColors.primary,
+        AppColors.primary,
+        Colors.white,
+      ),
+      _OptionState.wrong => (
+        AppColors.dangerSoft,
+        AppColors.danger,
+        AppColors.danger,
+      ),
+      _OptionState.dimmed => (
+        AppColors.background,
+        AppColors.border,
+        AppColors.textSecondary,
+      ),
     };
 
     return InkWell(

@@ -56,6 +56,9 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
 
   /// Covers school through post-graduation so the form fits every student.
   static const _classOptions = <String>[
+    'Class 5',
+    'Class 6',
+    'Class 7',
     'Class 8',
     'Class 9',
     'Class 10',
@@ -70,6 +73,24 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
     'Other',
   ];
 
+  /// Only students in Class 10 or above have a 10th marks card. Below that
+  /// the field is not just optional — it is not shown at all.
+  static const _marksCardClasses = <String>[
+    'Class 10',
+    'Class 11',
+    'Class 12',
+    'ITI / Diploma',
+    'Undergraduate — 1st year',
+    'Undergraduate — 2nd year',
+    'Undergraduate — 3rd year',
+    'Undergraduate — 4th year',
+    'Postgraduate',
+    'Other',
+  ];
+
+  bool get _needsMarksCard =>
+      _currentClass != null && _marksCardClasses.contains(_currentClass);
+
   @override
   void dispose() {
     _marksCard.dispose();
@@ -83,6 +104,11 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
     if (_currentClass == null) {
       showSnack(context, 'Please select your current class', error: true);
       return;
+    }
+    // Students below Class 10 have no 10th marks card yet, so nothing is
+    // collected and nothing is stored.
+    if (!_needsMarksCard && _marksCard.text.trim().isNotEmpty) {
+      _marksCard.clear();
     }
     final details = PendingStudentDetails(
       tenthMarksCardNumber: _marksCard.text.trim(),
@@ -143,29 +169,9 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
               ),
               const SizedBox(height: 24),
 
-              const _FieldLabel('10th marks card number'),
-              TextFormField(
-                controller: _marksCard,
-                textCapitalization: TextCapitalization.characters,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9/\-]')),
-                  LengthLimitingTextInputFormatter(24),
-                ],
-                decoration: const InputDecoration(
-                  hintText: 'e.g. KSEEB2021123456',
-                  prefixIcon: Icon(Icons.badge_outlined),
-                ),
-                validator: (v) {
-                  final base = _required(v, 'Marks card number');
-                  if (base != null) return base;
-                  if (v!.trim().length < 6) {
-                    return 'Enter the full number from your marks card';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 18),
-
+              // Select the class first: the marks card only exists once the
+              // student has reached Class 10, so the field below is hidden
+              // entirely for Classes 5–9.
               const _FieldLabel('Current class / year'),
               DropdownButtonFormField<String>(
                 initialValue: _currentClass,
@@ -183,6 +189,31 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                     v == null ? 'Current class is required' : null,
               ),
               const SizedBox(height: 18),
+
+              if (_needsMarksCard) ...[
+                const _FieldLabel('10th marks card number'),
+                TextFormField(
+                  controller: _marksCard,
+                  textCapitalization: TextCapitalization.characters,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9/\-]')),
+                    LengthLimitingTextInputFormatter(24),
+                  ],
+                  decoration: const InputDecoration(
+                    hintText: 'e.g. KSEEB2021123456',
+                    prefixIcon: Icon(Icons.badge_outlined),
+                  ),
+                  validator: (v) {
+                    final base = _required(v, 'Marks card number');
+                    if (base != null) return base;
+                    if (v!.trim().length < 6) {
+                      return 'Enter the full number from your marks card';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 18),
+              ],
 
               const _FieldLabel('School / college name'),
               TextFormField(

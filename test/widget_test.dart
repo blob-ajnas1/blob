@@ -389,7 +389,7 @@ void main() {
   });
 
   group('Daily learning tasks', () {
-    test('targets match the spec: 15 min video, 3 games, 10 questions', () {
+    test('targets match the spec: 15 min video, 3 maths rounds, 10 questions', () {
       expect(DailyTaskType.video.target, 15);
       expect(DailyTaskType.games.target, 3);
       expect(DailyTaskType.quiz.target, 10);

@@ -108,7 +108,7 @@ class _GamesTaskScreenState extends State<GamesTaskScreen> {
       _roundsDoneToday = learning.progressFor(userId).gamesPlayed;
     });
     if (awarded > 0) {
-      showSnack(context, 'All 3 games complete — +$awarded points earned');
+      showSnack(context, 'Daily goal complete — +$awarded points earned');
     } else {
       showSnack(
         context,

@@ -115,11 +115,15 @@ class EduProfileScreen extends StatelessWidget {
                       label: 'School / college',
                       value: profile.collegeName,
                     ),
-                    _Row(
-                      icon: Icons.badge_outlined,
-                      label: '10th marks card',
-                      value: profile.tenthMarksCardNumber,
-                    ),
+                    // Students below Class 10 have no 10th marks card yet, so
+                    // the value is empty and the row is dropped rather than
+                    // shown blank.
+                    if (profile.tenthMarksCardNumber.trim().isNotEmpty)
+                      _Row(
+                        icon: Icons.badge_outlined,
+                        label: '10th marks card',
+                        value: profile.tenthMarksCardNumber,
+                      ),
                     if (user.city != null && user.city!.trim().isNotEmpty)
                       _Row(
                         icon: Icons.location_city_outlined,

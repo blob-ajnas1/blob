@@ -48,13 +48,13 @@ extension DailyTaskTypeX on DailyTaskType {
 
   String get label => switch (this) {
     DailyTaskType.video => 'Watch a video',
-    DailyTaskType.games => 'Play 3 games',
+    DailyTaskType.games => 'Play Quick Maths',
     DailyTaskType.quiz => 'Complete the quiz',
   };
 
   String get subtitle => switch (this) {
     DailyTaskType.video => '15 minutes of focused learning',
-    DailyTaskType.games => '3 interactive rounds',
+    DailyTaskType.games => '3 rounds of exam-style sums',
     DailyTaskType.quiz => '10 questions',
   };
 
@@ -73,7 +73,7 @@ extension DailyTaskTypeX on DailyTaskType {
 
   String get unitLabel => switch (this) {
     DailyTaskType.video => 'min',
-    DailyTaskType.games => 'games',
+    DailyTaskType.games => 'rounds',
     DailyTaskType.quiz => 'questions',
   };
 

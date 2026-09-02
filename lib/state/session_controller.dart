@@ -99,6 +99,9 @@ class SessionController extends ChangeNotifier {
 
   Duration? get resendCooldown => _otp.cooldownRemaining(_pendingPhone);
 
+  /// True when codes go out as real SMS (dev banner is hidden in that case).
+  bool get usesRealSms => _otp.usesRealSms;
+
   // ---------------- Aadhaar flow ----------------
 
   Future<AadhaarSendResult> requestAadhaarOtp(String aadhaarNumber) async {

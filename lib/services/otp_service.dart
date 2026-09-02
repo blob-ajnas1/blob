@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:math';
+
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 /// Result of an OTP send attempt.
 class OtpSendResult {
@@ -53,6 +56,80 @@ class DevOtpProvider implements OtpProvider {
   }
 }
 
+/// Sends the OTP as a real SMS through an HTTP SMS gateway.
+///
+/// Works with any gateway that accepts a POST with `to` / `message` fields —
+/// Twilio, MSG91, Fast2SMS, Gupshup, Kaleyra etc. Supply the endpoint, the
+/// auth header and (for DLT-regulated Indian routes) the template/sender id.
+///
+/// Credentials are injected at build time so nothing secret is committed:
+///   flutter build apk --release \
+///     --dart-define=SMS_ENDPOINT=https://api.msg91.com/api/v5/flow/ \
+///     --dart-define=SMS_AUTH_KEY=xxxxx \
+///     --dart-define=SMS_SENDER_ID=BLOBAG
+class SmsGatewayOtpProvider implements OtpProvider {
+  SmsGatewayOtpProvider({
+    this.endpoint = const String.fromEnvironment('SMS_ENDPOINT'),
+    this.authKey = const String.fromEnvironment('SMS_AUTH_KEY'),
+    this.senderId = const String.fromEnvironment('SMS_SENDER_ID'),
+    this.templateId = const String.fromEnvironment('SMS_TEMPLATE_ID'),
+    http.Client? client,
+  }) : _client = client ?? http.Client();
+
+  final String endpoint;
+  final String authKey;
+  final String senderId;
+  final String templateId;
+  final http.Client _client;
+
+  /// True when build-time credentials are present.
+  bool get isConfigured => endpoint.isNotEmpty && authKey.isNotEmpty;
+
+  String messageFor(String code) =>
+      '$code is your BLOB verification code. Valid for 10 minutes. '
+      'Do not share it with anyone.';
+
+  @override
+  Future<OtpSendResult> send(String phoneE164, String code) async {
+    try {
+      final response = await _client
+          .post(
+            Uri.parse(endpoint),
+            headers: {
+              'Content-Type': 'application/json',
+              'authkey': authKey,
+              'Authorization': 'Bearer $authKey',
+            },
+            body: jsonEncode({
+              'to': phoneE164,
+              'sender': senderId,
+              'template_id': templateId,
+              'message': messageFor(code),
+              'otp': code,
+            }),
+          )
+          .timeout(const Duration(seconds: 20));
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return OtpSendResult(
+          success: true,
+          message: 'Verification code sent by SMS to $phoneE164',
+        );
+      }
+      return const OtpSendResult(
+        success: false,
+        message: 'Could not send the SMS. Please try again in a moment.',
+      );
+    } catch (_) {
+      return const OtpSendResult(
+        success: false,
+        message: 'Network problem while sending the SMS. Check your '
+            'connection and try again.',
+      );
+    }
+  }
+}
+
 class _OtpRecord {
   final String code;
   final DateTime expiresAt;
@@ -66,9 +143,20 @@ class _OtpRecord {
 /// Handles OTP lifecycle: generation, expiry, rate limiting, lockout.
 class OtpService {
   OtpService({OtpProvider? provider})
-      : _provider = provider ?? DevOtpProvider();
+      : _provider = provider ?? _defaultProvider();
+
+  /// Uses the real SMS gateway when build-time credentials were supplied,
+  /// otherwise falls back to the dev provider so the app stays testable.
+  static OtpProvider _defaultProvider() {
+    final gateway = SmsGatewayOtpProvider();
+    if (gateway.isConfigured) return gateway;
+    return DevOtpProvider();
+  }
 
   final OtpProvider _provider;
+
+  /// True when OTPs are delivered as real SMS rather than shown on screen.
+  bool get usesRealSms => _provider is SmsGatewayOtpProvider;
   final Random _random = Random.secure();
 
   final Map<String, _OtpRecord> _active = {};

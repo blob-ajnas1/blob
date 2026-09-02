@@ -199,9 +199,10 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 ),
                 const SizedBox(height: 20),
                 const InfoBanner(
-                  icon: Icons.lock_outline,
-                  message:
-                      'Your number is used only to verify your identity and secure your account.',
+                  icon: Icons.sms_outlined,
+                  message: 'Your number is used only to send your SMS '
+                      'verification code and secure your account. '
+                      'Standard SMS rates may apply.',
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(

@@ -125,37 +125,51 @@ class _OtpScreenState extends State<OtpScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              TextField(
-                controller: _controller,
-                keyboardType: TextInputType.number,
-                autofocus: true,
-                textAlign: TextAlign.center,
-                maxLength: 6,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(6),
-                ],
-                style: const TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 14,
+              AutofillGroup(
+                child: TextField(
+                  controller: _controller,
+                  keyboardType: TextInputType.number,
+                  autofocus: true,
+                  textAlign: TextAlign.center,
+                  maxLength: 6,
+                  // Lets Android/iOS drop the code straight in from the SMS.
+                  autofillHints: const [AutofillHints.oneTimeCode],
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(6),
+                  ],
+                  style: const TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 14,
+                  ),
+                  decoration: const InputDecoration(
+                    counterText: '',
+                    hintText: '••••••',
+                    hintStyle: TextStyle(letterSpacing: 14, fontSize: 26),
+                  ),
+                  // Autofilled or hand-typed, verify as soon as it is complete.
+                  onChanged: (v) {
+                    if (v.trim().length == 6 && !_verifying) _verify();
+                  },
+                  onSubmitted: (_) => _verify(),
                 ),
-                decoration: const InputDecoration(
-                  counterText: '',
-                  hintText: '••••••',
-                  hintStyle: TextStyle(letterSpacing: 14, fontSize: 26),
-                ),
-                onSubmitted: (_) => _verify(),
               ),
               const SizedBox(height: 12),
-              if (session.devCode != null)
+              if (!session.usesRealSms && session.devCode != null)
                 InfoBanner(
                   icon: Icons.developer_mode,
-                  message:
-                      'Development mode — your code is ${session.devCode}. '
-                      'Real SMS activates once Firebase config is added.',
+                  message: 'Test mode — your code is ${session.devCode}. '
+                      'Live SMS delivery activates once the SMS gateway keys '
+                      'are supplied at build time.',
                   color: AppColors.warning,
                   background: AppColors.pendingSoft,
+                )
+              else
+                const InfoBanner(
+                  icon: Icons.sms_outlined,
+                  message: 'We sent the code by SMS. It may take a few '
+                      'seconds to arrive.',
                 ),
               const SizedBox(height: 16),
               Text(

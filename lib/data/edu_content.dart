@@ -52,7 +52,8 @@ class EduContent {
       explanation: '10% of 240 is 24 and 5% is 12, so 15% = 24 + 12 = 36.',
     ),
     QuizQuestion(
-      question: 'Who is regarded as the chief architect of the Indian '
+      question:
+          'Who is regarded as the chief architect of the Indian '
           'Constitution?',
       options: [
         'Dr. B. R. Ambedkar',
@@ -88,7 +89,8 @@ class EduContent {
           'two sleeves".',
     ),
     QuizQuestion(
-      question: 'Which article of the Indian Constitution guarantees the '
+      question:
+          'Which article of the Indian Constitution guarantees the '
           'Right to Education?',
       options: ['Article 21A', 'Article 14', 'Article 19', 'Article 32'],
       correctIndex: 0,
@@ -105,7 +107,8 @@ class EduContent {
           'ohm is resistance and watt is power.',
     ),
     QuizQuestion(
-      question: 'In the sentence "She sings beautifully", the word '
+      question:
+          'In the sentence "She sings beautifully", the word '
           '"beautifully" is a:',
       options: ['Adverb', 'Adjective', 'Noun', 'Pronoun'],
       correctIndex: 0,
@@ -130,12 +133,18 @@ class EduContent {
     // Answers are plain integers on purpose: a fraction like 7/8 (87.5%)
     // would need a scaled encoding and a decoder in the UI, which is a lot of
     // fragile machinery for one sum. 3/4 keeps the round exact.
-    (prompt: '3/4 expressed as a percentage = ? (%)',
-        answer: 75, options: [75, 70, 80, 65]),
+    (
+      prompt: '3/4 expressed as a percentage = ? (%)',
+      answer: 75,
+      options: [75, 70, 80, 65],
+    ),
     (prompt: 'If 5x = 45, then x = ?', answer: 9, options: [9, 8, 11, 10]),
     (prompt: 'HCF of 36 and 48 = ?', answer: 12, options: [12, 6, 18, 24]),
-    (prompt: 'Average of 12, 18, 24 and 30 = ?',
-        answer: 21, options: [21, 22, 20, 24]),
+    (
+      prompt: 'Average of 12, 18, 24 and 30 = ?',
+      answer: 21,
+      options: [21, 22, 20, 24],
+    ),
   ];
 
   /// Word bank for the "Match the Term" game — academic vocabulary.

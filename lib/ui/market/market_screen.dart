@@ -36,10 +36,12 @@ class _MarketScreenState extends State<MarketScreen> {
     if (_query.isNotEmpty) {
       final q = _query.toLowerCase();
       items = items
-          .where((l) =>
-              l.cropName.toLowerCase().contains(q) ||
-              l.district.toLowerCase().contains(q) ||
-              l.ownerName.toLowerCase().contains(q))
+          .where(
+            (l) =>
+                l.cropName.toLowerCase().contains(q) ||
+                l.district.toLowerCase().contains(q) ||
+                l.ownerName.toLowerCase().contains(q),
+          )
           .toList();
     }
 
@@ -95,8 +97,7 @@ class _MarketScreenState extends State<MarketScreen> {
                     ),
                   ],
                   selected: {_channel},
-                  onSelectionChanged: (s) =>
-                      setState(() => _channel = s.first),
+                  onSelectionChanged: (s) => setState(() => _channel = s.first),
                   style: SegmentedButton.styleFrom(
                     selectedBackgroundColor: AppColors.primary,
                     selectedForegroundColor: Colors.white,

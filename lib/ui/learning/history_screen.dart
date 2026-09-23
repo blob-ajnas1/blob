@@ -63,9 +63,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               : 'Nothing in this filter',
                           message: all.isEmpty
                               ? 'Completed tasks appear here with the score '
-                                  'and points you earned.'
+                                    'and points you earned.'
                               : 'Try a different task type, or clear the '
-                                  'filter to see everything.',
+                                    'filter to see everything.',
                         ),
                       ),
                     )
@@ -119,8 +119,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  List<({DateTime date, List<ActivityRecord> records, int points})>
-      _groupByDay(List<ActivityRecord> records) {
+  List<({DateTime date, List<ActivityRecord> records, int points})> _groupByDay(
+    List<ActivityRecord> records,
+  ) {
     final buckets = <String, List<ActivityRecord>>{};
     for (final record in records) {
       final key = DailyProgress.dayKeyOf(record.createdAt);
@@ -146,8 +147,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
       return 'Yesterday';
     }
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
@@ -177,32 +188,22 @@ class _SummaryBar extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: _SummaryCell(
-              value: '$totalPoints',
-              label: 'Total points',
-            ),
+            child: _SummaryCell(value: '$totalPoints', label: 'Total points'),
           ),
           _divider(),
           Expanded(
-            child: _SummaryCell(
-              value: '$activities',
-              label: 'Activities',
-            ),
+            child: _SummaryCell(value: '$activities', label: 'Activities'),
           ),
           _divider(),
           Expanded(
-            child: _SummaryCell(
-              value: '$streak',
-              label: 'Day streak',
-            ),
+            child: _SummaryCell(value: '$streak', label: 'Day streak'),
           ),
         ],
       ),
     );
   }
 
-  Widget _divider() =>
-      Container(width: 1, height: 32, color: AppColors.border);
+  Widget _divider() => Container(width: 1, height: 32, color: AppColors.border);
 }
 
 class _SummaryCell extends StatelessWidget {
@@ -306,8 +307,7 @@ class _Chip extends StatelessWidget {
                 Icon(
                   icon,
                   size: 14,
-                  color:
-                      selected ? AppColors.textOnPrimary : AppColors.primary,
+                  color: selected ? AppColors.textOnPrimary : AppColors.primary,
                 ),
                 const SizedBox(width: 5),
               ],
@@ -352,11 +352,7 @@ class _HistoryRow extends StatelessWidget {
               color: AppColors.primarySoft,
               borderRadius: BorderRadius.circular(11),
             ),
-            child: Icon(
-              record.type.icon,
-              size: 19,
-              color: AppColors.primary,
-            ),
+            child: Icon(record.type.icon, size: 19, color: AppColors.primary),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -378,7 +374,7 @@ class _HistoryRow extends StatelessWidget {
                   record.score == null
                       ? _time(record.createdAt)
                       : 'Score ${record.scoreLabel} \u00b7 '
-                          '${_time(record.createdAt)}',
+                            '${_time(record.createdAt)}',
                   style: const TextStyle(
                     fontSize: 11.5,
                     color: AppColors.textSecondary,

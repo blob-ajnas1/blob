@@ -919,20 +919,23 @@ const List<StateRegion> kIndiaStates = [
       Place('Kanker', 20.2719, 81.4918),
     ]),
   ]),
-  StateRegion(Place('Dadra and Nagar Haveli and Daman and Diu', 20.4259, 72.8511), [
-    District(Place('Dadra & Nagar Haveli', 20.2065, 73.0081), [
-      Place('Amli', 20.2833, 73.0167),
-      Place('Silvassa', 20.2739, 72.9967),
-    ]),
-    District(Place('Daman', 20.4167, 72.8833), [
-      Place('Dabhel', 20.4095, 72.8834),
-      Place('Daman', 20.4143, 72.8324),
-      Place('Nani Daman', 20.4143, 72.8324),
-    ]),
-    District(Place('Diu', 20.7208, 70.9399), [
-      Place('Diu', 20.7141, 70.9822),
-    ]),
-  ]),
+  StateRegion(
+    Place('Dadra and Nagar Haveli and Daman and Diu', 20.4259, 72.8511),
+    [
+      District(Place('Dadra & Nagar Haveli', 20.2065, 73.0081), [
+        Place('Amli', 20.2833, 73.0167),
+        Place('Silvassa', 20.2739, 72.9967),
+      ]),
+      District(Place('Daman', 20.4167, 72.8833), [
+        Place('Dabhel', 20.4095, 72.8834),
+        Place('Daman', 20.4143, 72.8324),
+        Place('Nani Daman', 20.4143, 72.8324),
+      ]),
+      District(Place('Diu', 20.7208, 70.9399), [
+        Place('Diu', 20.7141, 70.9822),
+      ]),
+    ],
+  ),
   StateRegion(Place('Delhi', 28.6667, 77.1000), [
     District(Place('Central Delhi', 28.6486, 77.2190), [
       Place('Burari', 28.7557, 77.1994),
@@ -1435,9 +1438,7 @@ const List<StateRegion> kIndiaStates = [
       Place('Baddi', 30.9578, 76.7914),
       Place('Solan', 30.9091, 77.1087),
     ]),
-    District(Place('Una', 31.5837, 76.1928), [
-      Place('Una', 31.4649, 76.2691),
-    ]),
+    District(Place('Una', 31.5837, 76.1928), [Place('Una', 31.4649, 76.2691)]),
   ]),
   StateRegion(Place('Jammu and Kashmir', 33.5329, 75.4078), [
     District(Place('Anantnag', 33.8333, 75.1667), [
@@ -2077,9 +2078,7 @@ const List<StateRegion> kIndiaStates = [
       Place('Kargil', 34.5577, 76.1262),
       Place('Padam', 33.4666, 76.8849),
     ]),
-    District(Place('Leh', 34.3333, 77.4167), [
-      Place('Leh', 34.1650, 77.5840),
-    ]),
+    District(Place('Leh', 34.3333, 77.4167), [Place('Leh', 34.1650, 77.5840)]),
   ]),
   StateRegion(Place('Lakshadweep', 10.9390, 72.2866), [
     District(Place('Lakshadweep', 10.5651, 72.6456), [
@@ -2895,9 +2894,7 @@ const List<StateRegion> kIndiaStates = [
     District(Place('Mokokchung', 26.3139, 94.5168), [
       Place('Mokokchung', 26.3248, 94.5183),
     ]),
-    District(Place('Mon', 26.7500, 94.8333), [
-      Place('Mon', 26.7358, 95.0584),
-    ]),
+    District(Place('Mon', 26.7500, 94.8333), [Place('Mon', 26.7358, 95.0584)]),
     District(Place('Noklak', 26.1005, 95.0194), [
       Place('Noklak', 26.1985, 95.0166),
     ]),

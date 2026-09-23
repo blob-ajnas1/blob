@@ -18,10 +18,14 @@ class JobPostOutcome {
   final String message;
   final int feeChargedPaise;
 
+  /// True when the user backed out of checkout — not an error to shout about.
+  final bool cancelled;
+
   const JobPostOutcome({
     required this.success,
     required this.message,
     this.feeChargedPaise = 0,
+    this.cancelled = false,
   });
 }
 
@@ -29,9 +33,12 @@ class JobPostOutcome {
 /// vehicles, bookings and investments.
 class MarketplaceController extends ChangeNotifier {
   MarketplaceController({PaymentGateway? gateway})
-      : _gateway = gateway ?? StubPaymentGateway();
+    : _gateway = gateway ?? PaymentGateway.fromEnvironment();
 
   final PaymentGateway _gateway;
+
+  PaymentMode get paymentMode => _gateway.mode;
+
   final _db = LocalDb.instance;
   final _uuid = const Uuid();
 
@@ -52,10 +59,8 @@ class MarketplaceController extends ChangeNotifier {
     return items;
   }
 
-  List<JobApplication> get applications => _db
-      .all(LocalDb.applications)
-      .map(JobApplication.fromMap)
-      .toList();
+  List<JobApplication> get applications =>
+      _db.all(LocalDb.applications).map(JobApplication.fromMap).toList();
 
   List<LedgerEntry> get ledger {
     final items = _db.all(LocalDb.ledger).map(LedgerEntry.fromMap).toList();
@@ -67,8 +72,10 @@ class MarketplaceController extends ChangeNotifier {
       _db.all(LocalDb.vehicles).map(Vehicle.fromMap).toList();
 
   List<VehicleBooking> get bookings {
-    final items =
-        _db.all(LocalDb.bookings).map(VehicleBooking.fromMap).toList();
+    final items = _db
+        .all(LocalDb.bookings)
+        .map(VehicleBooking.fromMap)
+        .toList();
     items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return items;
   }
@@ -77,15 +84,19 @@ class MarketplaceController extends ChangeNotifier {
       _db.all(LocalDb.investments).map(Investment.fromMap).toList();
 
   List<PropertyListing> get properties {
-    final items =
-        _db.all(LocalDb.properties).map(PropertyListing.fromMap).toList();
+    final items = _db
+        .all(LocalDb.properties)
+        .map(PropertyListing.fromMap)
+        .toList();
     items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return items;
   }
 
   List<PropertyEnquiry> get enquiries {
-    final items =
-        _db.all(LocalDb.enquiries).map(PropertyEnquiry.fromMap).toList();
+    final items = _db
+        .all(LocalDb.enquiries)
+        .map(PropertyEnquiry.fromMap)
+        .toList();
     items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return items;
   }
@@ -109,8 +120,7 @@ class MarketplaceController extends ChangeNotifier {
       applications.where((a) => a.jobId == jobId).toList();
 
   List<JobApplication> applicationsByLaborer(String laborerId) {
-    final items =
-        applications.where((a) => a.laborerId == laborerId).toList();
+    final items = applications.where((a) => a.laborerId == laborerId).toList();
     items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return items;
   }
@@ -121,13 +131,14 @@ class MarketplaceController extends ChangeNotifier {
   List<Vehicle> availableVehicles(
     VehicleCategory category, {
     RoleSubtype? subtype,
-  }) =>
-      vehicles
-          .where((v) =>
-              v.category == category &&
-              v.available &&
-              (subtype == null || v.subtype == subtype))
-          .toList();
+  }) => vehicles
+      .where(
+        (v) =>
+            v.category == category &&
+            v.available &&
+            (subtype == null || v.subtype == subtype),
+      )
+      .toList();
 
   /// Distinct specialisations that currently have stock in a category.
   List<RoleSubtype> offeredSubtypes(VehicleCategory category) {
@@ -144,8 +155,11 @@ class MarketplaceController extends ChangeNotifier {
       properties.where((p) => p.ownerId == ownerId).toList();
 
   List<PropertyListing> activeProperties({RoleSubtype? kind}) => properties
-      .where((p) =>
-          p.status == ListingStatus.active && (kind == null || p.kind == kind))
+      .where(
+        (p) =>
+            p.status == ListingStatus.active &&
+            (kind == null || p.kind == kind),
+      )
       .toList();
 
   List<RoleSubtype> get offeredPropertyKinds {
@@ -167,9 +181,8 @@ class MarketplaceController extends ChangeNotifier {
       .where((b) => b.requesterId == userId || b.providerId == userId)
       .toList();
 
-  List<LedgerEntry> ledgerFor(String userId) => ledger
-      .where((e) => e.payerId == userId || e.payeeId == userId)
-      .toList();
+  List<LedgerEntry> ledgerFor(String userId) =>
+      ledger.where((e) => e.payerId == userId || e.payeeId == userId).toList();
 
   int pendingIncomingPaise(String userId) => ledger
       .where((e) => e.payeeId == userId && e.status == PaymentStatus.pending)
@@ -188,8 +201,9 @@ class MarketplaceController extends ChangeNotifier {
       .fold(0, (sum, e) => sum + e.amountPaise);
 
   int commissionEarnedPaise(String brokerId) => ledger
-      .where((e) =>
-          e.payeeId == brokerId && e.type == LedgerType.brokerCommission)
+      .where(
+        (e) => e.payeeId == brokerId && e.type == LedgerType.brokerCommission,
+      )
       .fold(0, (sum, e) => sum + e.amountPaise);
 
   List<AppUser> pendingApprovals() => users
@@ -227,7 +241,10 @@ class MarketplaceController extends ChangeNotifier {
     return listing;
   }
 
-  Future<void> updateListingStatus(Listing listing, ListingStatus status) async {
+  Future<void> updateListingStatus(
+    Listing listing,
+    ListingStatus status,
+  ) async {
     final updated = listing.copyWith(status: status);
     await _db.put(LocalDb.listings, updated.id, updated.toMap());
     notifyListeners();
@@ -273,12 +290,14 @@ class MarketplaceController extends ChangeNotifier {
   /// First 2 posts per user are free; ₹50 from the 3rd onward.
   int postingFeeFor(AppUser user) =>
       user.freeJobPostsUsed < Money.freeJobPostLimit
-          ? 0
-          : Money.jobPostingFeePaise;
+      ? 0
+      : Money.jobPostingFeePaise;
 
   int freePostsRemaining(AppUser user) =>
-      (Money.freeJobPostLimit - user.freeJobPostsUsed)
-          .clamp(0, Money.freeJobPostLimit);
+      (Money.freeJobPostLimit - user.freeJobPostsUsed).clamp(
+        0,
+        Money.freeJobPostLimit,
+      );
 
   Future<JobPostOutcome> postJob({
     required AppUser poster,
@@ -291,31 +310,28 @@ class MarketplaceController extends ChangeNotifier {
     required Future<void> Function(AppUser updated) onPosterUpdated,
   }) async {
     final fee = postingFeeFor(poster);
+    final jobId = _uuid.v4();
+    String? paymentRef;
 
     if (fee > 0) {
       final result = await _gateway.charge(
         amountPaise: fee,
         description: 'Job posting fee',
-        payerId: poster.id,
+        payer: Payer(id: poster.id, name: poster.name, phoneE164: poster.phone),
+        reference: jobId,
       );
       if (!result.success) {
-        return JobPostOutcome(success: false, message: result.message);
+        return JobPostOutcome(
+          success: false,
+          message: result.message,
+          cancelled: result.cancelled,
+        );
       }
-      await _addLedger(
-        payerId: poster.id,
-        payerName: poster.name,
-        payeeId: 'platform',
-        payeeName: 'BLOB Platform',
-        amountPaise: fee,
-        type: LedgerType.jobPostingFee,
-        reference: 'job_fee',
-        note: 'Job posting fee',
-        status: PaymentStatus.cleared,
-      );
+      paymentRef = result.gatewayRef;
     }
 
     final job = Job(
-      id: _uuid.v4(),
+      id: jobId,
       posterId: poster.id,
       posterName: poster.name,
       posterRole: poster.role,
@@ -329,19 +345,39 @@ class MarketplaceController extends ChangeNotifier {
       postingFeePaise: fee,
       createdAt: DateTime.now(),
     );
+    // Job saved first: the money is already taken, so the thing paid for
+    // must exist before anything else can fail.
     await _db.put(LocalDb.jobs, job.id, job.toMap());
 
-    final updatedPoster =
-        poster.copyWith(freeJobPostsUsed: poster.freeJobPostsUsed + 1);
+    if (fee > 0) {
+      await _addLedger(
+        payerId: poster.id,
+        payerName: poster.name,
+        payeeId: 'platform',
+        payeeName: 'BLOB Platform',
+        amountPaise: fee,
+        type: LedgerType.jobPostingFee,
+        reference: job.id,
+        note: 'Job posting fee · $title',
+        status: PaymentStatus.cleared,
+        gatewayRef: paymentRef,
+      );
+    }
+
+    final updatedPoster = poster.copyWith(
+      freeJobPostsUsed: poster.freeJobPostsUsed + 1,
+    );
     await _db.put(LocalDb.users, updatedPoster.id, updatedPoster.toMap());
     await onPosterUpdated(updatedPoster);
 
     notifyListeners();
     return JobPostOutcome(
       success: true,
-      message: fee > 0
-          ? 'Job posted · ${Money.format(fee)} fee charged'
-          : 'Job posted free',
+      message: fee == 0
+          ? 'Job posted free'
+          : _gateway.mode == PaymentMode.demo
+          ? 'Job posted · demo payment, no money taken'
+          : 'Job posted · ${Money.format(fee)} paid',
       feeChargedPaise: fee,
     );
   }
@@ -523,8 +559,9 @@ class MarketplaceController extends ChangeNotifier {
       ratePerKmPaise: ratePaise != null && !v.category.isDailyRate
           ? ratePaise
           : null,
-      ratePerDayPaise:
-          ratePaise != null && v.category.isDailyRate ? ratePaise : null,
+      ratePerDayPaise: ratePaise != null && v.category.isDailyRate
+          ? ratePaise
+          : null,
       notes: notes,
     );
     await _db.put(LocalDb.vehicles, updated.id, updated.toMap());
@@ -536,10 +573,12 @@ class MarketplaceController extends ChangeNotifier {
   /// Blocked while a booking is still live, so a renter who has already
   /// committed cannot have the vehicle vanish from under them. Once trips are
   /// completed or cancelled the listing is free to go.
-  bool canDeleteVehicle(String vehicleId) => !bookings.any((b) =>
-      b.vehicleId == vehicleId &&
-      b.status != BookingStatus.delivered &&
-      b.status != BookingStatus.cancelled);
+  bool canDeleteVehicle(String vehicleId) => !bookings.any(
+    (b) =>
+        b.vehicleId == vehicleId &&
+        b.status != BookingStatus.delivered &&
+        b.status != BookingStatus.cancelled,
+  );
 
   /// Withdraws a listing. Returns false when a live booking blocks it, so the
   /// caller can explain why rather than failing silently.
@@ -605,7 +644,9 @@ class MarketplaceController extends ChangeNotifier {
   }
 
   Future<void> updateBookingStatus(
-      VehicleBooking booking, BookingStatus status) async {
+    VehicleBooking booking,
+    BookingStatus status,
+  ) async {
     await _db.put(
       LocalDb.bookings,
       booking.id,
@@ -722,8 +763,9 @@ class MarketplaceController extends ChangeNotifier {
     await _db.put(LocalDb.enquiries, updated.id, updated.toMap());
 
     if (status == EnquiryStatus.agreed) {
-      final property =
-          properties.where((p) => p.id == enquiry.propertyId).firstOrNull;
+      final property = properties
+          .where((p) => p.id == enquiry.propertyId)
+          .firstOrNull;
       if (property != null) {
         await updatePropertyStatus(property, ListingStatus.reserved);
         await _addLedger(
@@ -753,6 +795,7 @@ class MarketplaceController extends ChangeNotifier {
     required String reference,
     required String note,
     PaymentStatus status = PaymentStatus.pending,
+    String? gatewayRef,
   }) async {
     final entry = LedgerEntry(
       id: _uuid.v4(),
@@ -767,6 +810,7 @@ class MarketplaceController extends ChangeNotifier {
       note: note,
       createdAt: DateTime.now(),
       clearedAt: status == PaymentStatus.cleared ? DateTime.now() : null,
+      gatewayRef: gatewayRef,
     );
     await _db.put(LocalDb.ledger, entry.id, entry.toMap());
   }

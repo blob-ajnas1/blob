@@ -32,14 +32,16 @@ class _AadhaarScreenState extends State<AadhaarScreen> {
     super.dispose();
   }
 
-  String get _rawAadhaar =>
-      AadhaarService.normalise(_aadhaarController.text);
+  String get _rawAadhaar => AadhaarService.normalise(_aadhaarController.text);
 
   Future<void> _sendOtp() async {
     final value = _rawAadhaar;
     if (value.length != 12) {
-      showSnack(context, 'Enter all 12 digits of your Aadhaar number',
-          error: true);
+      showSnack(
+        context,
+        'Enter all 12 digits of your Aadhaar number',
+        error: true,
+      );
       return;
     }
     if (!AadhaarService.isValidNumber(value)) {
@@ -104,8 +106,11 @@ class _AadhaarScreenState extends State<AadhaarScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.verified_user_outlined,
-                        color: AppColors.primary, size: 26),
+                    Icon(
+                      Icons.verified_user_outlined,
+                      color: AppColors.primary,
+                      size: 26,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -170,8 +175,11 @@ class _AadhaarScreenState extends State<AadhaarScreen> {
                 const SizedBox(height: 22),
                 Row(
                   children: [
-                    Icon(Icons.check_circle,
-                        color: AppColors.primary, size: 18),
+                    Icon(
+                      Icons.check_circle,
+                      color: AppColors.primary,
+                      size: 18,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -235,9 +243,9 @@ class _AadhaarScreenState extends State<AadhaarScreen> {
                   onPressed: _busy
                       ? null
                       : () => setState(() {
-                            _otpSent = false;
-                            _otpController.clear();
-                          }),
+                          _otpSent = false;
+                          _otpController.clear();
+                        }),
                   child: const Text('Change Aadhaar number'),
                 ),
               ],
@@ -246,8 +254,11 @@ class _AadhaarScreenState extends State<AadhaarScreen> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.lock_outline,
-                      size: 15, color: AppColors.textSecondary),
+                  const Icon(
+                    Icons.lock_outline,
+                    size: 15,
+                    color: AppColors.textSecondary,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -274,10 +285,10 @@ class _Spinner extends StatelessWidget {
   const _Spinner();
   @override
   Widget build(BuildContext context) => const SizedBox(
-        height: 20,
-        width: 20,
-        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-      );
+    height: 20,
+    width: 20,
+    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+  );
 }
 
 /// Renders 123456789012 as "1234 5678 9012" while typing.

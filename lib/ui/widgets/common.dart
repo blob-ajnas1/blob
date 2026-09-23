@@ -322,9 +322,7 @@ void showSnack(BuildContext context, String message, {bool error = false}) {
         content: Text(message),
         backgroundColor: error ? AppColors.danger : AppColors.primary,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
 }

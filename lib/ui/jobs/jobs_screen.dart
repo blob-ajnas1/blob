@@ -103,7 +103,8 @@ class FreePostsBanner extends StatelessWidget {
     if (remaining > 0) {
       return InfoBanner(
         icon: Icons.card_giftcard,
-        message: '$remaining free job post${remaining == 1 ? '' : 's'} remaining. '
+        message:
+            '$remaining free job post${remaining == 1 ? '' : 's'} remaining. '
             'After that each post costs \u20B950.',
       );
     }

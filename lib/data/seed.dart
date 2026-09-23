@@ -630,7 +630,8 @@ class Seed {
         ratePerDayPaise: 160000,
         district: 'Mandya',
         peerListed: true,
-        notes: 'Rotavator and trailer included. Renter fills diesel. '
+        notes:
+            'Rotavator and trailer included. Renter fills diesel. '
             'Within Mandya district only.',
       ),
       Vehicle(
@@ -969,25 +970,49 @@ class Seed {
     final plans = <_LearningDay>[
       // Divya — 6-day unbroken run including today, all three tasks done.
       for (var d = 0; d < 6; d++)
-        _LearningDay('u_student_1', d, video: 15, games: 3, quiz: 10,
-            correct: d.isEven ? 9 : 8),
+        _LearningDay(
+          'u_student_1',
+          d,
+          video: 15,
+          games: 3,
+          quiz: 10,
+          correct: d.isEven ? 9 : 8,
+        ),
       // Arjun — 4-day run, today only partly done so his card shows progress.
       _LearningDay('u_student_2', 0, video: 15, games: 1, quiz: 0, correct: 0),
       for (var d = 1; d < 4; d++)
-        _LearningDay('u_student_2', d, video: 15, games: 3, quiz: 10,
-            correct: 7),
+        _LearningDay(
+          'u_student_2',
+          d,
+          video: 15,
+          games: 3,
+          quiz: 10,
+          correct: 7,
+        ),
       // Fathima — started yesterday, strong quiz scores.
       for (var d = 1; d < 3; d++)
-        _LearningDay('u_student_3', d, video: 15, games: 3, quiz: 10,
-            correct: 10),
+        _LearningDay(
+          'u_student_3',
+          d,
+          video: 15,
+          games: 3,
+          quiz: 10,
+          correct: 10,
+        ),
       // Ravi — casual user, video only.
       for (var d = 0; d < 3; d++)
         _LearningDay('u_seeker_1', d, video: 15, games: 0, quiz: 0, correct: 0),
       // Sneha — lapsed: last active 5 days ago, so her streak reads 0 while
       // her points remain. This proves the streak reset path works.
       for (var d = 5; d < 8; d++)
-        _LearningDay('u_seeker_2', d, video: 15, games: 3, quiz: 10,
-            correct: 6),
+        _LearningDay(
+          'u_seeker_2',
+          d,
+          video: 15,
+          games: 3,
+          quiz: 10,
+          correct: 6,
+        ),
     ];
 
     var activitySeq = 0;

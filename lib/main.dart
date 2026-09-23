@@ -41,8 +41,9 @@ class BlobApp extends StatelessWidget {
           // the whole layout reads backwards.
           final language = context.watch<SessionController>().language;
           return Directionality(
-            textDirection:
-                language.isRtl ? TextDirection.rtl : TextDirection.ltr,
+            textDirection: language.isRtl
+                ? TextDirection.rtl
+                : TextDirection.ltr,
             child: child ?? const SizedBox.shrink(),
           );
         },

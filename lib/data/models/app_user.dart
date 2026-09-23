@@ -10,7 +10,8 @@ class AppUser {
   final String countryCode; // e.g. +91
   final String name;
   final UserRole role;
-  final RoleSubtype? subtype; // role specialisation, null for single-shape roles
+  final RoleSubtype?
+  subtype; // role specialisation, null for single-shape roles
   final LaborerType? laborerType; // only for UserRole.laborer
   final String? companyName; // exporter / investor entity
   final String? registrationNo; // exporter company registration
@@ -155,8 +156,9 @@ class AppUser {
     district: m['district'] as String? ?? '',
     stateName: m['state_name'] as String?,
     city: m['city'] as String?,
-    verificationStatus:
-        VerificationStatusX.fromId(m['verification_status'] as String? ?? 'approved'),
+    verificationStatus: VerificationStatusX.fromId(
+      m['verification_status'] as String? ?? 'approved',
+    ),
     freeJobPostsUsed: (m['free_job_posts_used'] as num?)?.toInt() ?? 0,
     category: UserCategoryX.tryFromId(m['category'] as String?),
     aadhaarLast4: m['aadhaar_last4'] as String?,

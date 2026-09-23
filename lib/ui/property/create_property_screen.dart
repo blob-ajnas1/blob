@@ -40,7 +40,8 @@ class _CreatePropertyScreenState extends State<CreatePropertyScreen> {
   void initState() {
     super.initState();
     final owner = context.read<SessionController>().user;
-    _kind = widget.kind ??
+    _kind =
+        widget.kind ??
         (RoleSubtypeX.propertyKinds.contains(owner?.subtype)
             ? owner!.subtype!
             : RoleSubtype.agricultureLandLease);
@@ -57,8 +58,7 @@ class _CreatePropertyScreenState extends State<CreatePropertyScreen> {
     super.dispose();
   }
 
-  int get _rentPaise =>
-      Money.rupeesToPaise(double.tryParse(_rent.text) ?? 0);
+  int get _rentPaise => Money.rupeesToPaise(double.tryParse(_rent.text) ?? 0);
   int get _depositPaise =>
       Money.rupeesToPaise(double.tryParse(_deposit.text) ?? 0);
   int get _moveInPaise => _rentPaise + _depositPaise;
@@ -80,17 +80,17 @@ class _CreatePropertyScreenState extends State<CreatePropertyScreen> {
     setState(() => _saving = true);
 
     await context.read<MarketplaceController>().createProperty(
-          owner: user,
-          kind: _kind,
-          title: _title.text.trim(),
-          description: _desc.text.trim(),
-          areaValue: double.parse(_area.text),
-          rentPerMonthPaise: _rentPaise,
-          depositPaise: _depositPaise,
-          locality: _locality.text.trim(),
-          leaseMonthsMin: _leaseMonths,
-          availableFrom: _availableFrom,
-        );
+      owner: user,
+      kind: _kind,
+      title: _title.text.trim(),
+      description: _desc.text.trim(),
+      areaValue: double.parse(_area.text),
+      rentPerMonthPaise: _rentPaise,
+      depositPaise: _depositPaise,
+      locality: _locality.text.trim(),
+      leaseMonthsMin: _leaseMonths,
+      availableFrom: _availableFrom,
+    );
 
     if (!mounted) return;
     showSnack(context, 'Property listed');
@@ -447,11 +447,7 @@ class _KindTile extends StatelessWidget {
               ),
             ),
             if (selected)
-              Icon(
-                Icons.check_circle,
-                size: 20,
-                color: AppColors.primary,
-              ),
+              Icon(Icons.check_circle, size: 20, color: AppColors.primary),
           ],
         ),
       ),

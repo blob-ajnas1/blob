@@ -27,8 +27,9 @@ class EduCompeteScreen extends StatelessWidget {
     final me = context.watch<SessionController>().user;
 
     final board = learning.leaderboard(limit: 50, category: _category);
-    final myRank =
-        me == null ? null : learning.rankOf(me.id, category: _category);
+    final myRank = me == null
+        ? null
+        : learning.rankOf(me.id, category: _category);
     final myPoints = me == null ? 0 : learning.totalPoints(me.id);
     final myStreak = me == null ? 0 : learning.currentStreak(me.id);
     final totalStudents = learning.totalLearners(category: _category);
@@ -98,9 +99,9 @@ class EduCompeteScreen extends StatelessWidget {
                     icon: Icons.trending_up_rounded,
                     message: myPoints == 0
                         ? 'You are not ranked yet \u2014 finish one task today '
-                            'to appear here.'
+                              'to appear here.'
                         : 'You have $myPoints points. Keep going to enter the '
-                            'top 50.',
+                              'top 50.',
                   ),
                 ),
               ],
@@ -149,9 +150,7 @@ class _CompeteHeader extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [AppColors.primary, AppColors.primaryDark],
         ),
-        borderRadius: const BorderRadius.vertical(
-          bottom: Radius.circular(24),
-        ),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,10 +174,7 @@ class _CompeteHeader extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 9,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(999),
@@ -387,9 +383,7 @@ class _PodiumColumn extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             color: rank == 1 ? AppColors.primary : AppColors.primarySoft,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(8),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
           ),
           alignment: Alignment.topCenter,
           padding: const EdgeInsets.only(top: 8),
@@ -398,8 +392,7 @@ class _PodiumColumn extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
-              color:
-                  rank == 1 ? AppColors.textOnPrimary : AppColors.primary,
+              color: rank == 1 ? AppColors.textOnPrimary : AppColors.primary,
             ),
           ),
         ),
@@ -440,8 +433,7 @@ class _BoardRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w900,
-                color:
-                    rank <= 3 ? AppColors.primary : AppColors.textSecondary,
+                color: rank <= 3 ? AppColors.primary : AppColors.textSecondary,
               ),
             ),
           ),

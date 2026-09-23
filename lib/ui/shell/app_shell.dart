@@ -64,35 +64,40 @@ class _AppShellState extends State<AppShell> {
 
     // --- Primary workspace for the role ---
     if (role == UserRole.admin) {
-      tabs.add(const NavDestination(
-        icon: Icons.verified_user_outlined,
-        activeIcon: Icons.verified_user,
-        labelKey: 'approvals',
-        screen: AdminScreen(),
-      ));
-    } else if (can(Permission.manageFleet) ||
-        can(Permission.manageRentals)) {
-      tabs.add(NavDestination(
-        icon: role == UserRole.vehicleRental
-            ? Icons.vpn_key_outlined
-            : role == UserRole.taxiService
-                ? Icons.local_taxi_outlined
-                : Icons.local_shipping_outlined,
-        activeIcon: role == UserRole.vehicleRental
-            ? Icons.vpn_key
-            : role == UserRole.taxiService
-                ? Icons.local_taxi
-                : Icons.local_shipping,
-        labelKey: role == UserRole.vehicleRental ? 'rentals' : 'fleet',
-        screen: const FleetScreen(),
-      ));
+      tabs.add(
+        const NavDestination(
+          icon: Icons.verified_user_outlined,
+          activeIcon: Icons.verified_user,
+          labelKey: 'approvals',
+          screen: AdminScreen(),
+        ),
+      );
+    } else if (can(Permission.manageFleet) || can(Permission.manageRentals)) {
+      tabs.add(
+        NavDestination(
+          icon: role == UserRole.vehicleRental
+              ? Icons.vpn_key_outlined
+              : role == UserRole.taxiService
+              ? Icons.local_taxi_outlined
+              : Icons.local_shipping_outlined,
+          activeIcon: role == UserRole.vehicleRental
+              ? Icons.vpn_key
+              : role == UserRole.taxiService
+              ? Icons.local_taxi
+              : Icons.local_shipping,
+          labelKey: role == UserRole.vehicleRental ? 'rentals' : 'fleet',
+          screen: const FleetScreen(),
+        ),
+      );
     } else if (role == UserRole.propertyOwner) {
-      tabs.add(const NavDestination(
-        icon: Icons.home_work_outlined,
-        activeIcon: Icons.home_work,
-        labelKey: 'property',
-        screen: PropertyMarketScreen(),
-      ));
+      tabs.add(
+        const NavDestination(
+          icon: Icons.home_work_outlined,
+          activeIcon: Icons.home_work,
+          labelKey: 'property',
+          screen: PropertyMarketScreen(),
+        ),
+      );
     }
 
     // NOTE: there is deliberately no "Learn" tab here. It used to open the
@@ -167,12 +172,14 @@ class _AppShellState extends State<AppShell> {
       ),
     );
 
-    tabs.add(const NavDestination(
-      icon: Icons.person_outline,
-      activeIcon: Icons.person,
-      labelKey: 'profile',
-      screen: ProfileScreen(),
-    ));
+    tabs.add(
+      const NavDestination(
+        icon: Icons.person_outline,
+        activeIcon: Icons.person,
+        labelKey: 'profile',
+        screen: ProfileScreen(),
+      ),
+    );
 
     return tabs;
   }
@@ -204,10 +211,7 @@ class _AppShellState extends State<AppShell> {
           items: [
             for (var i = 0; i < destinations.length; i++)
               BottomNavigationBarItem(
-                icon: _NavIcon(
-                  icon: destinations[i].icon,
-                  selected: false,
-                ),
+                icon: _NavIcon(icon: destinations[i].icon, selected: false),
                 activeIcon: _NavIcon(
                   icon: destinations[i].activeIcon,
                   selected: true,

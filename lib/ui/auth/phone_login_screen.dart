@@ -49,15 +49,18 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final session = context.read<SessionController>();
-    final result =
-        await session.requestOtp(_country.dial, _controller.text.trim());
+    final result = await session.requestOtp(
+      _country.dial,
+      _controller.text.trim(),
+    );
     if (!mounted) return;
     if (!result.success) {
       showSnack(context, result.message, error: true);
       return;
     }
-    Navigator.of(context)
-        .push(MaterialPageRoute<void>(builder: (_) => const OtpScreen()));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const OtpScreen()));
   }
 
   void _pickCountry() {
@@ -200,7 +203,8 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 const SizedBox(height: 20),
                 const InfoBanner(
                   icon: Icons.sms_outlined,
-                  message: 'Your number is used only to send your SMS '
+                  message:
+                      'Your number is used only to send your SMS '
                       'verification code and secure your account. '
                       'Standard SMS rates may apply.',
                 ),

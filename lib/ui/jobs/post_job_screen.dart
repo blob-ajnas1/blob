@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/money.dart';
 import '../../data/models/enums.dart';
+import '../../services/payment_gateway.dart';
 import '../../state/marketplace_controller.dart';
 import '../../state/session_controller.dart';
 import '../widgets/common.dart';
@@ -56,25 +57,8 @@ class _PostJobScreenState extends State<PostJobScreen> {
     if (fee > 0) {
       final proceed = await showDialog<bool>(
         context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: const Text('Posting fee'),
-          content: Text(
-            'You have used your ${Money.freeJobPostLimit} free job posts.\n\n'
-            'This post costs ${Money.format(fee)}. Continue?',
-            style: const TextStyle(height: 1.5),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(minimumSize: const Size(130, 44)),
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text('Pay ${Money.format(fee)}'),
-            ),
-          ],
-        ),
+        builder: (dialogContext) =>
+            _FeeDialog(fee: fee, mode: market.paymentMode),
       );
       if (proceed != true) return;
     }
@@ -93,7 +77,13 @@ class _PostJobScreenState extends State<PostJobScreen> {
 
     if (!mounted) return;
     setState(() => _saving = false);
-    showSnack(context, outcome.message, error: !outcome.success);
+    // Cancelling checkout is a choice, not an error: keep the form as typed
+    // so the user can pay later without re-entering everything.
+    showSnack(
+      context,
+      outcome.message,
+      error: !outcome.success && !outcome.cancelled,
+    );
     if (outcome.success) Navigator.of(context).pop();
   }
 
@@ -150,9 +140,8 @@ class _PostJobScreenState extends State<PostJobScreen> {
                     alignLabelWithHint: true,
                     hintText: 'Tasks, hours, food or travel provided...',
                   ),
-                  validator: (v) => (v?.trim().isEmpty ?? true)
-                      ? 'Describe the work'
-                      : null,
+                  validator: (v) =>
+                      (v?.trim().isEmpty ?? true) ? 'Describe the work' : null,
                 ),
                 const SizedBox(height: 18),
                 const Text(
@@ -279,11 +268,90 @@ class _PostJobScreenState extends State<PostJobScreen> {
                               : 'Pay ${Money.format(fee)} & Post',
                         ),
                 ),
+                if (fee > 0) ...[
+                  const SizedBox(height: 12),
+                  const _SecureNote(),
+                ],
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Confirms the fee before checkout opens and says how payment works.
+class _FeeDialog extends StatelessWidget {
+  const _FeeDialog({required this.fee, required this.mode});
+
+  final int fee;
+  final PaymentMode mode;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Job posting fee'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'You have used your ${Money.freeJobPostLimit} free job posts. '
+            'This post costs ${Money.format(fee)}.',
+            style: const TextStyle(height: 1.5),
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            'Pay by UPI (GPay, PhonePe, Paytm, BHIM), card or netbanking. '
+            'Your job goes live as soon as payment succeeds.',
+            style: TextStyle(height: 1.45, color: AppColors.textSecondary),
+          ),
+          if (mode == PaymentMode.demo || mode == PaymentMode.test) ...[
+            const SizedBox(height: 14),
+            InfoBanner(
+              icon: Icons.science_outlined,
+              message: mode == PaymentMode.demo
+                  ? 'Demo mode: no real money will be taken.'
+                  : 'Razorpay test mode: use test UPI/cards, no real money.',
+              color: AppColors.warning,
+              background: AppColors.pendingSoft,
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(minimumSize: const Size(130, 44)),
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text('Pay ${Money.format(fee)}'),
+        ),
+      ],
+    );
+  }
+}
+
+class _SecureNote extends StatelessWidget {
+  const _SecureNote();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.lock_outline, size: 15, color: AppColors.textSecondary),
+        SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            'Secure payment by Razorpay · UPI, cards, netbanking',
+            style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -49,10 +49,9 @@ class LocalDb {
 
   Box box(String name) => Hive.box(name);
 
-  List<Map<dynamic, dynamic>> all(String boxName) => box(boxName)
-      .values
-      .whereType<Map<dynamic, dynamic>>()
-      .toList(growable: false);
+  List<Map<dynamic, dynamic>> all(String boxName) => box(
+    boxName,
+  ).values.whereType<Map<dynamic, dynamic>>().toList(growable: false);
 
   Future<void> put(String boxName, String id, Map<String, dynamic> value) =>
       box(boxName).put(id, value);

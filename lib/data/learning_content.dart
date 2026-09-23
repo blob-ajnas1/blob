@@ -2,7 +2,6 @@
 /// connectivity — the same constraint that drives the rest of the app.
 library;
 
-
 import 'task_types.dart';
 
 // Re-exported so existing importers of this library keep resolving MathRound,
@@ -151,16 +150,31 @@ class LearningContent {
 
   /// Quick-maths game: market arithmetic a trader actually does.
   static const List<MathRound> mathRounds = [
-    (prompt: '12 quintals at ₹2,300 each = ?', answer: 27600,
-        options: [27600, 25300, 28600, 26400]),
-    (prompt: '₹8,400 split equally among 4 workers = ?', answer: 2100,
-        options: [2100, 2400, 1800, 2200]),
-    (prompt: '2.5% commission on ₹40,000 = ?', answer: 1000,
-        options: [1000, 1500, 800, 1200]),
-    (prompt: '350 kg converted to quintals = ?', answer: 35,
-        options: [35, 3, 350, 3500]),
-    (prompt: '₹650 per worker × 12 workers = ?', answer: 7800,
-        options: [7800, 7200, 8400, 6500]),
+    (
+      prompt: '12 quintals at ₹2,300 each = ?',
+      answer: 27600,
+      options: [27600, 25300, 28600, 26400],
+    ),
+    (
+      prompt: '₹8,400 split equally among 4 workers = ?',
+      answer: 2100,
+      options: [2100, 2400, 1800, 2200],
+    ),
+    (
+      prompt: '2.5% commission on ₹40,000 = ?',
+      answer: 1000,
+      options: [1000, 1500, 800, 1200],
+    ),
+    (
+      prompt: '350 kg converted to quintals = ?',
+      answer: 35,
+      options: [35, 3, 350, 3500],
+    ),
+    (
+      prompt: '₹650 per worker × 12 workers = ?',
+      answer: 7800,
+      options: [7800, 7200, 8400, 6500],
+    ),
   ];
 
   /// Sequencing game: order crops by market price per quintal, lowest first.

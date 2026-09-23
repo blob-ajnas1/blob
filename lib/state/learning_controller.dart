@@ -28,11 +28,7 @@ class LearningController extends ChangeNotifier {
   bool hasProfile(String userId) => profileFor(userId) != null;
 
   Future<void> saveProfile(StudentProfile profile) async {
-    await _db.put(
-      LocalDb.studentProfiles,
-      profile.userId,
-      profile.toMap(),
-    );
+    await _db.put(LocalDb.studentProfiles, profile.userId, profile.toMap());
     notifyListeners();
   }
 
@@ -40,13 +36,12 @@ class LearningController extends ChangeNotifier {
 
   DailyProgress progressFor(String userId, {DateTime? date}) {
     final day = date ?? DateTime.now();
-    final raw =
-        _db.get(LocalDb.dailyProgress, DailyProgress.keyFor(userId, day));
-    if (raw != null) return DailyProgress.fromMap(raw);
-    return DailyProgress(
-      userId: userId,
-      dayKey: DailyProgress.dayKeyOf(day),
+    final raw = _db.get(
+      LocalDb.dailyProgress,
+      DailyProgress.keyFor(userId, day),
     );
+    if (raw != null) return DailyProgress.fromMap(raw);
+    return DailyProgress(userId: userId, dayKey: DailyProgress.dayKeyOf(day));
   }
 
   Future<void> _saveProgress(DailyProgress progress) async {
@@ -62,8 +57,10 @@ class LearningController extends ChangeNotifier {
     final current = progressFor(userId);
     final wasComplete = current.isComplete(DailyTaskType.video);
     final updated = current.copyWith(
-      videoMinutes:
-          min(current.videoMinutes + minutes, DailyTaskType.video.target),
+      videoMinutes: min(
+        current.videoMinutes + minutes,
+        DailyTaskType.video.target,
+      ),
     );
     return _finalise(
       userId: userId,
@@ -80,8 +77,7 @@ class LearningController extends ChangeNotifier {
     final current = progressFor(userId);
     final wasComplete = current.isComplete(DailyTaskType.games);
     final updated = current.copyWith(
-      gamesPlayed:
-          min(current.gamesPlayed + 1, DailyTaskType.games.target),
+      gamesPlayed: min(current.gamesPlayed + 1, DailyTaskType.games.target),
     );
     return _finalise(
       userId: userId,
@@ -104,8 +100,10 @@ class LearningController extends ChangeNotifier {
     final current = progressFor(userId);
     final wasComplete = current.isComplete(DailyTaskType.quiz);
     final updated = current.copyWith(
-      quizAnswered:
-          min(current.quizAnswered + answered, DailyTaskType.quiz.target),
+      quizAnswered: min(
+        current.quizAnswered + answered,
+        DailyTaskType.quiz.target,
+      ),
       quizCorrect: current.quizCorrect + correct,
     );
     return _finalise(
@@ -134,9 +132,7 @@ class LearningController extends ChangeNotifier {
     final nowComplete = after.isComplete(type);
     // Points are awarded once, on the transition into completion.
     final awarded = (!wasComplete && nowComplete) ? type.points : 0;
-    final saved = after.copyWith(
-      pointsEarned: after.pointsEarned + awarded,
-    );
+    final saved = after.copyWith(pointsEarned: after.pointsEarned + awarded);
     await _saveProgress(saved);
 
     if (awarded > 0) {
@@ -175,9 +171,10 @@ class LearningController extends ChangeNotifier {
     await _db.put(LocalDb.activities, record.id, record.toMap());
   }
 
-  Future<void> _touchStreak(String userId) =>
-      _db.setSetting('${_kLastActiveDay}_$userId',
-          DailyProgress.dayKeyOf(DateTime.now()));
+  Future<void> _touchStreak(String userId) => _db.setSetting(
+    '${_kLastActiveDay}_$userId',
+    DailyProgress.dayKeyOf(DateTime.now()),
+  );
 
   // ---------------- Points & streak ----------------
 
@@ -200,8 +197,9 @@ class LearningController extends ChangeNotifier {
 
     final today = DateTime.now();
     final todayKey = DailyProgress.dayKeyOf(today);
-    final yesterdayKey =
-        DailyProgress.dayKeyOf(today.subtract(const Duration(days: 1)));
+    final yesterdayKey = DailyProgress.dayKeyOf(
+      today.subtract(const Duration(days: 1)),
+    );
 
     DateTime cursor;
     if (active.contains(todayKey)) {
@@ -295,14 +293,16 @@ class LearningController extends ChangeNotifier {
       if (category != null && user.category != category) continue;
       final points = byUser[user.id] ?? 0;
       if (points <= 0) continue;
-      entries.add(LeaderboardEntry(
-        userId: user.id,
-        name: user.name,
-        district: user.district,
-        points: points,
-        streak: currentStreak(user.id),
-        category: user.category ?? UserCategory.jobSeeker,
-      ));
+      entries.add(
+        LeaderboardEntry(
+          userId: user.id,
+          name: user.name,
+          district: user.district,
+          points: points,
+          streak: currentStreak(user.id),
+          category: user.category ?? UserCategory.jobSeeker,
+        ),
+      );
     }
     entries.sort((a, b) {
       final byPoints = b.points.compareTo(a.points);

@@ -60,8 +60,7 @@ class PlaceMapScreen extends StatelessWidget {
               ),
               children: [
                 TileLayer(
-                  urlTemplate:
-                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   // OSM's tile policy requires identifying the client.
                   // Must match the real applicationId in
                   // android/app/build.gradle.kts, or OSM cannot identify us.
@@ -132,11 +131,7 @@ class _MapAttribution extends StatelessWidget {
 }
 
 class _PlaceFooter extends StatelessWidget {
-  const _PlaceFooter({
-    required this.place,
-    required this.title,
-    this.subtitle,
-  });
+  const _PlaceFooter({required this.place, required this.title, this.subtitle});
 
   final Place place;
   final String title;
@@ -231,8 +226,7 @@ class PlaceLink extends StatelessWidget {
 
     final place = Gazetteer.lookup(text);
     final baseStyle =
-        style ??
-        const TextStyle(fontSize: 13, color: AppColors.textSecondary);
+        style ?? const TextStyle(fontSize: 13, color: AppColors.textSecondary);
 
     // Unknown place: no affordance to tap. The icon is kept, in the muted
     // text colour, so a row does not visibly reflow just because one value
@@ -294,19 +288,14 @@ void openPlaceMap(BuildContext context, String? name, {String? subtitle}) {
   final place = Gazetteer.lookup(name);
   if (place == null) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('No map position on record for "${name ?? ''}".'),
-      ),
+      SnackBar(content: Text('No map position on record for "${name ?? ''}".')),
     );
     return;
   }
   Navigator.of(context).push(
     MaterialPageRoute<void>(
-      builder: (_) => PlaceMapScreen(
-        place: place,
-        label: name!.trim(),
-        subtitle: subtitle,
-      ),
+      builder: (_) =>
+          PlaceMapScreen(place: place, label: name!.trim(), subtitle: subtitle),
     ),
   );
 }

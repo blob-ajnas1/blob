@@ -50,10 +50,7 @@ class EduHomeScreen extends StatelessWidget {
             const SizedBox(height: 18),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _TodayCard(
-                progress: progress,
-                challengeDay: challengeDay,
-              ),
+              child: _TodayCard(progress: progress, challengeDay: challengeDay),
             ),
             const SizedBox(height: 22),
             const Padding(
@@ -100,8 +97,9 @@ class EduHomeScreen extends StatelessWidget {
                       color: AppColors.warning,
                       value: '$points',
                       label: 'Points earned',
-                      footnote:
-                          rank == null ? 'Not ranked yet' : 'Rank #$rank overall',
+                      footnote: rank == null
+                          ? 'Not ranked yet'
+                          : 'Rank #$rank overall',
                     ),
                   ),
                 ],
@@ -194,16 +192,17 @@ class _StudentHeader extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
-                        color:
-                            AppColors.textOnPrimary.withValues(alpha: 0.75),
+                        color: AppColors.textOnPrimary.withValues(alpha: 0.75),
                       ),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.textOnPrimary.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(999),
@@ -368,7 +367,7 @@ class _TodayCard extends StatelessWidget {
           Text(
             all
                 ? 'All three tasks done. Come back tomorrow to extend your '
-                    'streak.'
+                      'streak.'
                 : 'Finish all three tasks today to keep your streak alive.',
             style: const TextStyle(
               fontSize: 12.5,
@@ -639,8 +638,8 @@ class _StreakStrip extends StatelessWidget {
                         color: day.completed == 3
                             ? AppColors.primary
                             : day.completed > 0
-                                ? AppColors.primarySoft
-                                : AppColors.background,
+                            ? AppColors.primarySoft
+                            : AppColors.background,
                         border: Border.all(
                           color: day.completed > 0
                               ? AppColors.primary
@@ -655,8 +654,8 @@ class _StreakStrip extends StatelessWidget {
                           color: day.completed == 3
                               ? AppColors.textOnPrimary
                               : day.completed > 0
-                                  ? AppColors.primary
-                                  : AppColors.textSecondary,
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
                         ),
                       ),
                     ),

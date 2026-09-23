@@ -53,9 +53,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        user.name.isNotEmpty
-                            ? user.name[0].toUpperCase()
-                            : 'B',
+                        user.name.isNotEmpty ? user.name[0].toUpperCase() : 'B',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -190,7 +188,8 @@ class ProfileScreen extends StatelessWidget {
             _Row(
               icon: Icons.post_add,
               label: 'Free posts left',
-              value: '${market.freePostsRemaining(user)} of '
+              value:
+                  '${market.freePostsRemaining(user)} of '
                   '${Money.freeJobPostLimit}',
             ),
             const SizedBox(height: 18),
@@ -461,10 +460,7 @@ class _Tile extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(
-                Icons.chevron_right,
-                color: AppColors.textSecondary,
-              ),
+              const Icon(Icons.chevron_right, color: AppColors.textSecondary),
             ],
           ),
         ),

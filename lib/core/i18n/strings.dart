@@ -130,8 +130,10 @@ extension AppLanguageX on AppLanguage {
     AppLanguage.telugu,
   }.contains(this);
 
-  static AppLanguage fromCode(String code) => AppLanguage.values
-      .firstWhere((e) => e.code == code, orElse: () => AppLanguage.english);
+  static AppLanguage fromCode(String code) => AppLanguage.values.firstWhere(
+    (e) => e.code == code,
+    orElse: () => AppLanguage.english,
+  );
 }
 
 class S {
@@ -387,8 +389,7 @@ class S {
     'hi': {
       'app_tagline': 'हर फसल के लिए एक बाज़ार',
       'welcome_title': 'BLOB में आपका स्वागत है',
-      'welcome_body':
-          'भूमि मालिक, खरीदार, मज़दूर और निर्यातक — सब एक ही जगह।',
+      'welcome_body': 'भूमि मालिक, खरीदार, मज़दूर और निर्यातक — सब एक ही जगह।',
       'get_started': 'शुरू करें',
       'choose_language': 'अपनी भाषा चुनें',
       'language_hint': 'इसे बाद में सेटिंग्स में बदल सकते हैं',

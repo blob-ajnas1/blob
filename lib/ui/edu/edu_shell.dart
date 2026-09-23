@@ -79,8 +79,10 @@ class _EduShellState extends State<EduShell> {
             for (var i = 0; i < _tabs.length; i++)
               BottomNavigationBarItem(
                 icon: _EduNavIcon(icon: _tabs[i].icon, selected: false),
-                activeIcon:
-                    _EduNavIcon(icon: _tabs[i].activeIcon, selected: true),
+                activeIcon: _EduNavIcon(
+                  icon: _tabs[i].activeIcon,
+                  selected: true,
+                ),
                 label: _tabs[i].label,
               ),
           ],

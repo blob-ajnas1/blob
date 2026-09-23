@@ -239,7 +239,9 @@ class RoleHome extends StatelessWidget {
           message: 'No crops available right now. Check back soon.',
         )
       else
-        ...fromFarmers.take(4).map((l) => ListingCard(listing: l, showBuy: true)),
+        ...fromFarmers
+            .take(4)
+            .map((l) => ListingCard(listing: l, showBuy: true)),
       const SizedBox(height: 22),
       const SectionHeader('My Export Listings'),
       if (myResale.isEmpty)
@@ -306,7 +308,9 @@ class RoleHome extends StatelessWidget {
           message: 'No active listings to broker at the moment.',
         )
       else
-        ...openDeals.take(5).map((l) => ListingCard(listing: l, brokerMode: true)),
+        ...openDeals
+            .take(5)
+            .map((l) => ListingCard(listing: l, brokerMode: true)),
     ];
   }
 
@@ -374,8 +378,9 @@ class RoleHome extends StatelessWidget {
   List<Widget> _investor(BuildContext context, AppUser user) {
     final market = context.watch<MarketplaceController>();
     final projects = market.listingsFor(ListingChannel.toBuyers);
-    final myInvestments =
-        market.investments.where((i) => i.investorId == user.id).toList();
+    final myInvestments = market.investments
+        .where((i) => i.investorId == user.id)
+        .toList();
 
     return [
       const InfoBanner(
@@ -510,7 +515,9 @@ class RoleHome extends StatelessWidget {
           message: 'No ride requests yet.',
         )
       else
-        ...rides.take(4).map((b) => BookingCard(booking: b, providerView: true)),
+        ...rides
+            .take(4)
+            .map((b) => BookingCard(booking: b, providerView: true)),
     ];
   }
 
@@ -576,7 +583,9 @@ class RoleHome extends StatelessWidget {
           message: 'No rental requests yet.',
         )
       else
-        ...hires.take(4).map((b) => BookingCard(booking: b, providerView: true)),
+        ...hires
+            .take(4)
+            .map((b) => BookingCard(booking: b, providerView: true)),
     ];
   }
 
@@ -637,7 +646,9 @@ class RoleHome extends StatelessWidget {
           message: 'No enquiries yet. Listings appear in the Property tab.',
         )
       else
-        ...enquiries.take(4).map((e) => EnquiryCard(enquiry: e, ownerView: true)),
+        ...enquiries
+            .take(4)
+            .map((e) => EnquiryCard(enquiry: e, ownerView: true)),
     ];
   }
 
@@ -671,8 +682,7 @@ class RoleHome extends StatelessWidget {
   }
 
   void _push(BuildContext context, Widget screen) {
-    Navigator.of(context)
-        .push(MaterialPageRoute<void>(builder: (_) => screen));
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
   }
 }
 
@@ -713,9 +723,9 @@ class _RentalPrompt extends StatelessWidget {
               Text(
                 mine.isEmpty
                     ? 'Rent a vehicle by the day, or earn from one you '
-                        'already own. No licence or business account needed.'
+                          'already own. No licence or business account needed.'
                     : 'You have ${mine.length} vehicle'
-                        '${mine.length == 1 ? '' : 's'} listed for rent.',
+                          '${mine.length == 1 ? '' : 's'} listed for rent.',
                 style: const TextStyle(
                   fontSize: 13,
                   height: 1.4,

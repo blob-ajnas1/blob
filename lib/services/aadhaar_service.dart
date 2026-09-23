@@ -81,7 +81,7 @@ class _Pending {
 
 class AadhaarService {
   AadhaarService({AadhaarProvider? provider})
-      : _provider = provider ?? DemoAadhaarProvider();
+    : _provider = provider ?? DemoAadhaarProvider();
 
   final AadhaarProvider _provider;
   final Random _random = Random.secure();

@@ -57,9 +57,10 @@ extension UserRoleX on UserRole {
     UserRole.vehicleRental,
   }.contains(this);
 
-  static UserRole fromId(String value) =>
-      UserRole.values.firstWhere((e) => e.name == value,
-          orElse: () => UserRole.buyer);
+  static UserRole fromId(String value) => UserRole.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => UserRole.buyer,
+  );
 }
 
 enum LaborerType { singleWorker, groupWork }
@@ -76,8 +77,10 @@ extension LaborerTypeX on LaborerType {
     LaborerType.groupWork => 'Team labor — harvesting, factory shifts',
   };
 
-  static LaborerType fromId(String value) => LaborerType.values
-      .firstWhere((e) => e.name == value, orElse: () => LaborerType.singleWorker);
+  static LaborerType fromId(String value) => LaborerType.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => LaborerType.singleWorker,
+  );
 }
 
 enum VerificationStatus { pending, approved, rejected }
@@ -90,8 +93,10 @@ extension VerificationStatusX on VerificationStatus {
   };
 
   static VerificationStatus fromId(String value) =>
-      VerificationStatus.values.firstWhere((e) => e.name == value,
-          orElse: () => VerificationStatus.approved);
+      VerificationStatus.values.firstWhere(
+        (e) => e.name == value,
+        orElse: () => VerificationStatus.approved,
+      );
 }
 
 enum JobType { single, group }
@@ -107,9 +112,10 @@ extension JobStatusX on JobStatus {
     JobStatus.cancelled => 'Cancelled',
   };
 
-  static JobStatus fromId(String value) =>
-      JobStatus.values.firstWhere((e) => e.name == value,
-          orElse: () => JobStatus.open);
+  static JobStatus fromId(String value) => JobStatus.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => JobStatus.open,
+  );
 }
 
 enum ApplicationStatus { applied, assigned, accepted, completed, rejected }
@@ -124,8 +130,10 @@ extension ApplicationStatusX on ApplicationStatus {
   };
 
   static ApplicationStatus fromId(String value) =>
-      ApplicationStatus.values.firstWhere((e) => e.name == value,
-          orElse: () => ApplicationStatus.applied);
+      ApplicationStatus.values.firstWhere(
+        (e) => e.name == value,
+        orElse: () => ApplicationStatus.applied,
+      );
 }
 
 enum ListingStatus { active, reserved, sold, withdrawn }
@@ -138,9 +146,10 @@ extension ListingStatusX on ListingStatus {
     ListingStatus.withdrawn => 'Withdrawn',
   };
 
-  static ListingStatus fromId(String value) =>
-      ListingStatus.values.firstWhere((e) => e.name == value,
-          orElse: () => ListingStatus.active);
+  static ListingStatus fromId(String value) => ListingStatus.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => ListingStatus.active,
+  );
 }
 
 /// Who the listing is offered to — drives the supply chain.
@@ -153,8 +162,10 @@ extension ListingChannelX on ListingChannel {
   };
 
   static ListingChannel fromId(String value) =>
-      ListingChannel.values.firstWhere((e) => e.name == value,
-          orElse: () => ListingChannel.toBuyers);
+      ListingChannel.values.firstWhere(
+        (e) => e.name == value,
+        orElse: () => ListingChannel.toBuyers,
+      );
 }
 
 enum PaymentStatus { pending, cleared, failed }
@@ -166,9 +177,10 @@ extension PaymentStatusX on PaymentStatus {
     PaymentStatus.failed => 'Failed',
   };
 
-  static PaymentStatus fromId(String value) =>
-      PaymentStatus.values.firstWhere((e) => e.name == value,
-          orElse: () => PaymentStatus.pending);
+  static PaymentStatus fromId(String value) => PaymentStatus.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => PaymentStatus.pending,
+  );
 }
 
 /// Ledger entry classification.
@@ -197,9 +209,10 @@ extension LedgerTypeX on LedgerType {
     LedgerType.propertyRent => 'Property Rent',
   };
 
-  static LedgerType fromId(String value) =>
-      LedgerType.values.firstWhere((e) => e.name == value,
-          orElse: () => LedgerType.laborWage);
+  static LedgerType fromId(String value) => LedgerType.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => LedgerType.laborWage,
+  );
 }
 
 enum VehicleCategory { goods, passenger, rental }
@@ -220,9 +233,8 @@ extension VehicleCategoryX on VehicleCategory {
   /// Rentals are billed per day; everything else is billed per kilometre.
   bool get isDailyRate => this == VehicleCategory.rental;
 
-  static VehicleCategory fromId(String value) =>
-      VehicleCategory.values.firstWhere((e) => e.name == value,
-          orElse: () => VehicleCategory.goods);
+  static VehicleCategory fromId(String value) => VehicleCategory.values
+      .firstWhere((e) => e.name == value, orElse: () => VehicleCategory.goods);
 }
 
 /// Lifecycle for a property lease enquiry.
@@ -236,9 +248,10 @@ extension EnquiryStatusX on EnquiryStatus {
     EnquiryStatus.declined => 'Declined',
   };
 
-  static EnquiryStatus fromId(String value) =>
-      EnquiryStatus.values.firstWhere((e) => e.name == value,
-          orElse: () => EnquiryStatus.open);
+  static EnquiryStatus fromId(String value) => EnquiryStatus.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => EnquiryStatus.open,
+  );
 }
 
 enum BookingStatus { requested, confirmed, enRoute, delivered, cancelled }
@@ -252,7 +265,8 @@ extension BookingStatusX on BookingStatus {
     BookingStatus.cancelled => 'Cancelled',
   };
 
-  static BookingStatus fromId(String value) =>
-      BookingStatus.values.firstWhere((e) => e.name == value,
-          orElse: () => BookingStatus.requested);
+  static BookingStatus fromId(String value) => BookingStatus.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => BookingStatus.requested,
+  );
 }

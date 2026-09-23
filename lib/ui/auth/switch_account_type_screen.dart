@@ -82,10 +82,10 @@ class SwitchAccountTypeScreen extends StatelessWidget {
               icon: Icons.info_outline,
               message: other == UserCategory.student
                   ? 'Switching to Student replaces your marketplace role. Your '
-                      'listings and jobs stay saved, but you will not see them '
-                      'until you switch back.'
+                        'listings and jobs stay saved, but you will not see them '
+                        'until you switch back.'
                   : 'Switching to Job Seeker asks you to choose a marketplace '
-                      'role, so the right tabs and permissions can be applied.',
+                        'role, so the right tabs and permissions can be applied.',
             ),
           ],
         ),
@@ -105,11 +105,11 @@ class SwitchAccountTypeScreen extends StatelessWidget {
         content: Text(
           target == UserCategory.student
               ? 'Your app will change to the student version — education '
-                  'tasks, practice games and student competition. Marketplace '
-                  'features will be hidden until you switch back.'
+                    'tasks, practice games and student competition. Marketplace '
+                    'features will be hidden until you switch back.'
               : 'Your app will change to the job seeker version — agri market, '
-                  'jobs and transport. Student features will be hidden until '
-                  'you switch back.',
+                    'jobs and transport. Student features will be hidden until '
+                    'you switch back.',
           style: const TextStyle(height: 1.4),
         ),
         actions: [
@@ -118,9 +118,7 @@ class SwitchAccountTypeScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(0, 44),
-            ),
+            style: ElevatedButton.styleFrom(minimumSize: const Size(0, 44)),
             onPressed: () => Navigator.of(dialogContext).pop(true),
             child: const Text('Switch'),
           ),
@@ -238,9 +236,7 @@ class _TypeCard extends StatelessWidget {
               child: Icon(
                 icon,
                 size: 22,
-                color: isCurrent
-                    ? AppColors.textOnPrimary
-                    : AppColors.primary,
+                color: isCurrent ? AppColors.textOnPrimary : AppColors.primary,
               ),
             ),
             const SizedBox(width: 13),
@@ -295,10 +291,7 @@ class _TypeCard extends StatelessWidget {
               ),
             ),
             if (!isCurrent)
-              const Icon(
-                Icons.chevron_right,
-                color: AppColors.textSecondary,
-              ),
+              const Icon(Icons.chevron_right, color: AppColors.textSecondary),
           ],
         ),
       ),

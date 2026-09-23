@@ -62,38 +62,29 @@ extension RoleSubtypeX on RoleSubtype {
   /// The role this specialisation belongs to.
   UserRole get role => switch (this) {
     RoleSubtype.wholesaleHarvestBuyer ||
-    RoleSubtype.retailMarketBuyer =>
-      UserRole.buyer,
+    RoleSubtype.retailMarketBuyer => UserRole.buyer,
     RoleSubtype.singleAndGroup ||
     RoleSubtype.dailyHarvestWork ||
-    RoleSubtype.skilledFieldOperator =>
-      UserRole.laborer,
+    RoleSubtype.skilledFieldOperator => UserRole.laborer,
     RoleSubtype.cropCommissionDeal ||
-    RoleSubtype.labourAgentContract =>
-      UserRole.broker,
+    RoleSubtype.labourAgentContract => UserRole.broker,
     RoleSubtype.pickupLightCommercial ||
-    RoleSubtype.heavyTransportTruck =>
-      UserRole.transport,
+    RoleSubtype.heavyTransportTruck => UserRole.transport,
     RoleSubtype.farmInfrastructureEquity ||
     RoleSubtype.agriTechExpansion ||
-    RoleSubtype.structuralCapital =>
-      UserRole.foreignInvestor,
+    RoleSubtype.structuralCapital => UserRole.foreignInvestor,
     RoleSubtype.internationalExportBatch ||
-    RoleSubtype.interStateWholesaleExport =>
-      UserRole.globalExporter,
+    RoleSubtype.interStateWholesaleExport => UserRole.globalExporter,
     RoleSubtype.localAutoCab ||
     RoleSubtype.outstationCab ||
-    RoleSubtype.travellerBus =>
-      UserRole.taxiService,
+    RoleSubtype.travellerBus => UserRole.taxiService,
     RoleSubtype.carRental ||
     RoleSubtype.jeepSuvRental ||
     RoleSubtype.bikeScooterRental ||
-    RoleSubtype.tractorImplementRental =>
-      UserRole.vehicleRental,
+    RoleSubtype.tractorImplementRental => UserRole.vehicleRental,
     RoleSubtype.agricultureLandLease ||
     RoleSubtype.commercialBuilding ||
-    RoleSubtype.residentialQuarters =>
-      UserRole.propertyOwner,
+    RoleSubtype.residentialQuarters => UserRole.propertyOwner,
   };
 
   String get label => switch (this) {
@@ -130,14 +121,12 @@ extension RoleSubtypeX on RoleSubtype {
       'Smaller graded lots for shops and mandi resale',
     RoleSubtype.singleAndGroup =>
       'Individual work or a team you bring with you',
-    RoleSubtype.dailyHarvestWork =>
-      'Day-wage harvesting, sorting and loading',
+    RoleSubtype.dailyHarvestWork => 'Day-wage harvesting, sorting and loading',
     RoleSubtype.skilledFieldOperator =>
       'Tractor, tiller, sprayer and machinery operators',
     RoleSubtype.cropCommissionDeal =>
       'Match crops to buyers, earn 2.5% on the deal',
-    RoleSubtype.labourAgentContract =>
-      'Supply work crews on contract to farms',
+    RoleSubtype.labourAgentContract => 'Supply work crews on contract to farms',
     RoleSubtype.pickupLightCommercial =>
       'Tempo, pickup and mini truck under 3 tonnes',
     RoleSubtype.heavyTransportTruck =>

@@ -36,8 +36,9 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
     final toReceive = all
         .where((e) => e.payeeId == user.id && e.status == PaymentStatus.pending)
         .toList();
-    final cleared =
-        all.where((e) => e.status == PaymentStatus.cleared).toList();
+    final cleared = all
+        .where((e) => e.status == PaymentStatus.cleared)
+        .toList();
 
     final entries = switch (_tab) {
       0 => toPay,
@@ -67,8 +68,10 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                   Expanded(
                     child: _SummaryCard(
                       label: 'Due to You',
-                      amountPaise:
-                          toReceive.fold(0, (s, e) => s + e.amountPaise),
+                      amountPaise: toReceive.fold(
+                        0,
+                        (s, e) => s + e.amountPaise,
+                      ),
                       color: AppColors.info,
                       background: const Color(0xFFE8F1FC),
                     ),

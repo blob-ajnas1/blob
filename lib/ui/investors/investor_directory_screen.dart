@@ -18,8 +18,9 @@ class InvestorDirectoryScreen extends StatelessWidget {
     final user = context.watch<SessionController>().user!;
     final market = context.watch<MarketplaceController>();
     final investors = market.usersByRole(UserRole.foreignInvestor);
-    final myInvestments =
-        market.investments.where((i) => i.landownerId == user.id).toList();
+    final myInvestments = market.investments
+        .where((i) => i.landownerId == user.id)
+        .toList();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Find Investors')),
@@ -30,7 +31,8 @@ class InvestorDirectoryScreen extends StatelessWidget {
           children: [
             const InfoBanner(
               icon: Icons.currency_rupee,
-              message: 'Investors fund projects in Indian Rupees (INR). '
+              message:
+                  'Investors fund projects in Indian Rupees (INR). '
                   'List your crop first so investors can find your project.',
             ),
             const SizedBox(height: 18),

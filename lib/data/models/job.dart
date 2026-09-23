@@ -141,8 +141,9 @@ class JobApplication {
     jobId: m['job_id'] as String? ?? '',
     laborerId: m['laborer_id'] as String? ?? '',
     laborerName: m['laborer_name'] as String? ?? '',
-    laborerType:
-        LaborerTypeX.fromId(m['laborer_type'] as String? ?? 'singleWorker'),
+    laborerType: LaborerTypeX.fromId(
+      m['laborer_type'] as String? ?? 'singleWorker',
+    ),
     groupSize: (m['group_size'] as num?)?.toInt() ?? 1,
     status: ApplicationStatusX.fromId(m['status'] as String? ?? 'applied'),
     createdAt:

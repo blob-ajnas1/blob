@@ -123,7 +123,8 @@ class SmsGatewayOtpProvider implements OtpProvider {
     } catch (_) {
       return const OtpSendResult(
         success: false,
-        message: 'Network problem while sending the SMS. Check your '
+        message:
+            'Network problem while sending the SMS. Check your '
             'connection and try again.',
       );
     }
@@ -143,7 +144,7 @@ class _OtpRecord {
 /// Handles OTP lifecycle: generation, expiry, rate limiting, lockout.
 class OtpService {
   OtpService({OtpProvider? provider})
-      : _provider = provider ?? _defaultProvider();
+    : _provider = provider ?? _defaultProvider();
 
   /// Uses the real SMS gateway when build-time credentials were supplied,
   /// otherwise falls back to the dev provider so the app stays testable.
@@ -219,9 +220,7 @@ class OtpService {
     }
 
     final history = _sendHistory.putIfAbsent(phoneE164, () => []);
-    history.removeWhere(
-      (t) => DateTime.now().difference(t) > rateWindow,
-    );
+    history.removeWhere((t) => DateTime.now().difference(t) > rateWindow);
     if (history.length >= maxSendsPerWindow) {
       _lockouts[phoneE164] = DateTime.now().add(lockoutDuration);
       return const OtpSendResult(
@@ -245,8 +244,7 @@ class OtpService {
     if (lock != null) {
       return OtpVerifyResult(
         success: false,
-        message:
-            'Number locked. Try again in ${lock.inMinutes + 1} minute(s).',
+        message: 'Number locked. Try again in ${lock.inMinutes + 1} minute(s).',
       );
     }
 

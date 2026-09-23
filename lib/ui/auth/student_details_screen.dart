@@ -24,13 +24,13 @@ class PendingStudentDetails {
   });
 
   StudentProfile toProfile(String userId) => StudentProfile(
-        userId: userId,
-        tenthMarksCardNumber: tenthMarksCardNumber,
-        currentClass: currentClass,
-        collegeName: collegeName,
-        goals: goals,
-        updatedAt: DateTime.now(),
-      );
+    userId: userId,
+    tenthMarksCardNumber: tenthMarksCardNumber,
+    currentClass: currentClass,
+    collegeName: collegeName,
+    goals: goals,
+    updatedAt: DateTime.now(),
+  );
 }
 
 /// Step 3 — academic background. Everything except the free-text goals is
@@ -196,7 +196,9 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                   controller: _marksCard,
                   textCapitalization: TextCapitalization.characters,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9/\-]')),
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[A-Za-z0-9/\-]'),
+                    ),
                     LengthLimitingTextInputFormatter(24),
                   ],
                   decoration: const InputDecoration(
@@ -270,14 +272,14 @@ class _FieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Text(
-          optional ? '$text (optional)' : text,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textSecondary,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Text(
+      optional ? '$text (optional)' : text,
+      style: const TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w700,
+        color: AppColors.textSecondary,
+      ),
+    ),
+  );
 }

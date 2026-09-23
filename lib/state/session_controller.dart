@@ -13,8 +13,8 @@ import '../services/otp_service.dart';
 /// Owns language preference, OTP flow state and the persistent session.
 class SessionController extends ChangeNotifier {
   SessionController({OtpService? otpService, AadhaarService? aadhaarService})
-      : _otp = otpService ?? OtpService(),
-        _aadhaar = aadhaarService ?? AadhaarService();
+    : _otp = otpService ?? OtpService(),
+      _aadhaar = aadhaarService ?? AadhaarService();
 
   final OtpService _otp;
   final AadhaarService _aadhaar;
@@ -79,7 +79,10 @@ class SessionController extends ChangeNotifier {
 
   // ---------------- OTP flow ----------------
 
-  Future<OtpSendResult> requestOtp(String countryCode, String localNumber) async {
+  Future<OtpSendResult> requestOtp(
+    String countryCode,
+    String localNumber,
+  ) async {
     _setBusy(true);
     _pendingCountryCode = countryCode;
     _pendingPhone = '$countryCode${localNumber.trim()}';
@@ -127,10 +130,12 @@ class SessionController extends ChangeNotifier {
   Future<void> markAadhaarVerifiedOnUser() async {
     final current = _user;
     if (current == null) return;
-    await updateUser(current.copyWith(
-      aadhaarLast4: AadhaarService.last4(_pendingAadhaar),
-      aadhaarVerified: true,
-    ));
+    await updateUser(
+      current.copyWith(
+        aadhaarLast4: AadhaarService.last4(_pendingAadhaar),
+        aadhaarVerified: true,
+      ),
+    );
   }
 
   /// Verifies the code. Returns the existing user when the phone is already
@@ -188,8 +193,9 @@ class SessionController extends ChangeNotifier {
           ? VerificationStatus.pending
           : VerificationStatus.approved,
       category: category,
-      aadhaarLast4:
-          _aadhaarVerified ? AadhaarService.last4(_pendingAadhaar) : null,
+      aadhaarLast4: _aadhaarVerified
+          ? AadhaarService.last4(_pendingAadhaar)
+          : null,
       aadhaarVerified: _aadhaarVerified,
       createdAt: DateTime.now(),
     );

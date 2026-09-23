@@ -102,10 +102,7 @@ class AppTheme {
       chipTheme: base.chipTheme.copyWith(
         backgroundColor: p.primarySoft,
         side: BorderSide.none,
-        labelStyle: TextStyle(
-          color: p.primary,
-          fontWeight: FontWeight.w600,
-        ),
+        labelStyle: TextStyle(color: p.primary, fontWeight: FontWeight.w600),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.surface,
@@ -121,11 +118,7 @@ class AppTheme {
           fontSize: 12,
         ),
       ),
-      dividerTheme: DividerThemeData(
-        color: p.border,
-        thickness: 1,
-        space: 1,
-      ),
+      dividerTheme: DividerThemeData(color: p.border, thickness: 1, space: 1),
     );
   }
 }

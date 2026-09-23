@@ -56,8 +56,7 @@ class FleetScreen extends StatelessWidget {
               SectionHeader(bucket.label),
               Builder(
                 builder: (_) {
-                  final items =
-                      mine.where((v) => v.subtype == bucket).toList();
+                  final items = mine.where((v) => v.subtype == bucket).toList();
                   if (items.isEmpty) {
                     return EmptyCard(
                       icon: bucket.icon,
@@ -68,7 +67,9 @@ class FleetScreen extends StatelessWidget {
                     );
                   }
                   return Column(
-                    children: items.map((v) => VehicleCard(vehicle: v)).toList(),
+                    children: items
+                        .map((v) => VehicleCard(vehicle: v))
+                        .toList(),
                   );
                 },
               ),
@@ -76,8 +77,9 @@ class FleetScreen extends StatelessWidget {
             ],
             Builder(
               builder: (_) {
-                final unbucketed =
-                    mine.where((v) => v.subtype == null).toList();
+                final unbucketed = mine
+                    .where((v) => v.subtype == null)
+                    .toList();
                 if (unbucketed.isEmpty) return const SizedBox.shrink();
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,9 +145,8 @@ class _AddVehicleSheetState extends State<_AddVehicleSheet> {
   void initState() {
     super.initState();
     final user = context.read<SessionController>().user!;
-    _subtype = widget.preset ??
-        user.subtype ??
-        RoleSubtypeX.defaultFor(user.role);
+    _subtype =
+        widget.preset ?? user.subtype ?? RoleSubtypeX.defaultFor(user.role);
   }
 
   @override
@@ -243,8 +244,9 @@ class _AddVehicleSheetState extends State<_AddVehicleSheet> {
                 Expanded(
                   child: TextField(
                     controller: _capacity,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
                         RegExp(r'^\d*\.?\d{0,1}'),
@@ -285,14 +287,14 @@ class _AddVehicleSheetState extends State<_AddVehicleSheet> {
                   return;
                 }
                 await context.read<MarketplaceController>().addVehicle(
-                      owner: user,
-                      category: widget.category,
-                      subtype: _subtype,
-                      vehicleType: _type.text.trim(),
-                      registrationNumber: _reg.text.trim(),
-                      capacityValue: capacity,
-                      ratePaise: rate * 100,
-                    );
+                  owner: user,
+                  category: widget.category,
+                  subtype: _subtype,
+                  vehicleType: _type.text.trim(),
+                  registrationNumber: _reg.text.trim(),
+                  capacityValue: capacity,
+                  ratePaise: rate * 100,
+                );
                 if (!context.mounted) return;
                 Navigator.of(context).pop();
                 showSnack(context, 'Vehicle added');

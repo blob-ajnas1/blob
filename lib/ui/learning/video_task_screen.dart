@@ -55,8 +55,7 @@ class _VideoTaskScreenState extends State<VideoTaskScreen> {
     super.dispose();
   }
 
-  int get _totalMinutesWatched =>
-      _bankedMinutes + (_sessionSeconds ~/ 60);
+  int get _totalMinutesWatched => _bankedMinutes + (_sessionSeconds ~/ 60);
 
   bool get _isComplete => _totalMinutesWatched >= _lesson.minutes;
 
@@ -158,8 +157,8 @@ class _VideoTaskScreenState extends State<VideoTaskScreen> {
                           _isComplete
                               ? Icons.check_circle
                               : _playing
-                                  ? Icons.graphic_eq
-                                  : Icons.play_circle_fill,
+                              ? Icons.graphic_eq
+                              : Icons.play_circle_fill,
                           size: 56,
                           color: Colors.white.withValues(alpha: 0.92),
                         ),
@@ -168,8 +167,8 @@ class _VideoTaskScreenState extends State<VideoTaskScreen> {
                           _isComplete
                               ? 'Lesson finished'
                               : _playing
-                                  ? 'Playing…'
-                                  : 'Tap play to begin',
+                              ? 'Playing…'
+                              : 'Tap play to begin',
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 13,
@@ -189,10 +188,12 @@ class _VideoTaskScreenState extends State<VideoTaskScreen> {
                             child: LinearProgressIndicator(
                               value: _fraction,
                               minHeight: 5,
-                              backgroundColor:
-                                  Colors.white.withValues(alpha: 0.22),
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.22,
+                              ),
                               valueColor: const AlwaysStoppedAnimation(
-                                  AppColors.accent),
+                                AppColors.accent,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 6),
@@ -259,16 +260,20 @@ class _VideoTaskScreenState extends State<VideoTaskScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: _isComplete ? null : _togglePlay,
-                    icon: Icon(_playing
-                        ? Icons.pause
-                        : _isComplete
-                            ? Icons.check
-                            : Icons.play_arrow),
-                    label: Text(_isComplete
-                        ? 'Completed'
-                        : _playing
-                            ? 'Pause'
-                            : 'Play lesson'),
+                    icon: Icon(
+                      _playing
+                          ? Icons.pause
+                          : _isComplete
+                          ? Icons.check
+                          : Icons.play_arrow,
+                    ),
+                    label: Text(
+                      _isComplete
+                          ? 'Completed'
+                          : _playing
+                          ? 'Pause'
+                          : 'Play lesson',
+                    ),
                   ),
                 ),
               ],
@@ -286,13 +291,15 @@ class _VideoTaskScreenState extends State<VideoTaskScreen> {
             const SizedBox(height: 18),
 
             InfoBanner(
-              icon: _isComplete ? Icons.emoji_events_outlined : Icons.timer_outlined,
+              icon: _isComplete
+                  ? Icons.emoji_events_outlined
+                  : Icons.timer_outlined,
               message: _isComplete
                   ? 'You earned ${DailyTaskType.video.points} points for '
-                      "today's lesson."
+                        "today's lesson."
                   : 'Watch ${_lesson.minutes} minutes to earn '
-                      '${DailyTaskType.video.points} points. Your progress '
-                      'is saved every minute.',
+                        '${DailyTaskType.video.points} points. Your progress '
+                        'is saved every minute.',
             ),
           ],
         ),

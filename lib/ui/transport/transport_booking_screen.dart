@@ -26,7 +26,7 @@ class TransportBookingScreen extends StatefulWidget {
   });
 
   const TransportBookingScreen.taxi({super.key})
-      : category = VehicleCategory.passenger;
+    : category = VehicleCategory.passenger;
 
   // There is deliberately no `.rental` constructor. Renting now goes through
   // RentalHubScreen, which shows both directions and discloses whether a
@@ -34,8 +34,7 @@ class TransportBookingScreen extends StatefulWidget {
   // renting would hide the lending half of the feature from whoever took it.
 
   @override
-  State<TransportBookingScreen> createState() =>
-      _TransportBookingScreenState();
+  State<TransportBookingScreen> createState() => _TransportBookingScreenState();
 }
 
 class _TransportBookingScreenState extends State<TransportBookingScreen> {
@@ -58,12 +57,13 @@ class _TransportBookingScreenState extends State<TransportBookingScreen> {
     final user = context.watch<SessionController>().user!;
     final market = context.watch<MarketplaceController>();
     final offered = market.offeredSubtypes(widget.category);
-    final available =
-        market.availableVehicles(widget.category, subtype: _filter);
+    final available = market.availableVehicles(
+      widget.category,
+      subtype: _filter,
+    );
     final myBookings = market
         .bookingsForUser(user.id)
-        .where((b) =>
-            b.requesterId == user.id && b.category == widget.category)
+        .where((b) => b.requesterId == user.id && b.category == widget.category)
         .toList();
 
     return Scaffold(
@@ -387,11 +387,14 @@ class _BookingSheetState extends State<_BookingSheet> {
               ],
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
-                labelText:
-                    _isRental ? 'Rental duration' : 'Approximate distance',
+                labelText: _isRental
+                    ? 'Rental duration'
+                    : 'Approximate distance',
                 suffixText: _isRental ? 'days' : 'km',
                 prefixIcon: Icon(
-                  _isRental ? Icons.calendar_month_outlined : Icons.route_outlined,
+                  _isRental
+                      ? Icons.calendar_month_outlined
+                      : Icons.route_outlined,
                 ),
               ),
             ),
@@ -477,14 +480,14 @@ class _BookingSheetState extends State<_BookingSheet> {
                 final value = double.parse(_quantity.text);
                 final user = context.read<SessionController>().user!;
                 await context.read<MarketplaceController>().bookVehicle(
-                      vehicle: widget.vehicle,
-                      requester: user,
-                      pickup: _pickup.text.trim(),
-                      drop: _drop.text.trim(),
-                      distanceKm: _isRental ? 0 : value,
-                      rentalDays: _isRental ? value.round() : 0,
-                      scheduledAt: _when,
-                    );
+                  vehicle: widget.vehicle,
+                  requester: user,
+                  pickup: _pickup.text.trim(),
+                  drop: _drop.text.trim(),
+                  distanceKm: _isRental ? 0 : value,
+                  rentalDays: _isRental ? value.round() : 0,
+                  scheduledAt: _when,
+                );
                 if (!context.mounted) return;
                 Navigator.of(context).pop();
                 showSnack(

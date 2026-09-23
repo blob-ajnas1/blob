@@ -95,8 +95,10 @@ class _RentTabState extends State<_RentTab> {
         .toList();
     final mine = market
         .bookingsForUser(user.id)
-        .where((b) =>
-            b.requesterId == user.id && b.category == VehicleCategory.rental)
+        .where(
+          (b) =>
+              b.requesterId == user.id && b.category == VehicleCategory.rental,
+        )
         .toList();
 
     return Column(
@@ -105,7 +107,8 @@ class _RentTabState extends State<_RentTab> {
           padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
           child: InfoBanner(
             icon: Icons.vpn_key_outlined,
-            message: 'Rent by the day from rental businesses and from other '
+            message:
+                'Rent by the day from rental businesses and from other '
                 'members near you.',
           ),
         ),
@@ -174,8 +177,10 @@ class _LendTab extends StatelessWidget {
     final mine = market.rentalsListedBy(user.id);
     final requests = market
         .bookingsForUser(user.id)
-        .where((b) =>
-            b.providerId == user.id && b.category == VehicleCategory.rental)
+        .where(
+          (b) =>
+              b.providerId == user.id && b.category == VehicleCategory.rental,
+        )
         .toList();
 
     return ListView(
@@ -183,7 +188,8 @@ class _LendTab extends StatelessWidget {
       children: [
         InfoBanner(
           icon: Icons.handshake_outlined,
-          message: 'Put any vehicle you own up for rent and set your own '
+          message:
+              'Put any vehicle you own up for rent and set your own '
               'daily rate. Renters near ${user.district.isEmpty ? 'you' : user.district} '
               'will see it.',
         ),
@@ -201,7 +207,8 @@ class _LendTab extends StatelessWidget {
         if (mine.isEmpty)
           EmptyCard(
             icon: Icons.vpn_key_outlined,
-            message: 'You have nothing listed for rent yet. An idle tractor, '
+            message:
+                'You have nothing listed for rent yet. An idle tractor, '
                 'car or bike can earn while you are not using it.',
             actionLabel: 'List a vehicle',
             onAction: () => openListForRentSheet(context),
@@ -328,8 +335,9 @@ class _MyRentalCard extends StatelessWidget {
                 ),
                 TextButton(
                   style: TextButton.styleFrom(
-                    foregroundColor:
-                        blocked ? AppColors.textSecondary : AppColors.danger,
+                    foregroundColor: blocked
+                        ? AppColors.textSecondary
+                        : AppColors.danger,
                   ),
                   onPressed: () => _confirmRemove(context, blocked),
                   child: const Text('Remove'),
@@ -699,9 +707,9 @@ class _ListForRentSheetState extends State<_ListForRentSheet> {
               Text(
                 _isEdit
                     ? 'Update your rate or details. Renters see the change '
-                        'immediately.'
+                          'immediately.'
                     : 'Anyone can lend a vehicle — you do not need to be a '
-                        'rental business.',
+                          'rental business.',
                 style: const TextStyle(
                   fontSize: 12.5,
                   height: 1.35,
@@ -720,8 +728,7 @@ class _ListForRentSheetState extends State<_ListForRentSheet> {
                         avatar: Icon(
                           s.icon,
                           size: 16,
-                          color:
-                              _kind == s ? Colors.white : AppColors.primary,
+                          color: _kind == s ? Colors.white : AppColors.primary,
                         ),
                         label: Text(s.label),
                         selected: _kind == s,
@@ -778,9 +785,7 @@ class _ListForRentSheetState extends State<_ListForRentSheet> {
                     child: TextFormField(
                       controller: _capacity,
                       keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: const InputDecoration(
                         labelText: 'Seats',
                         suffixText: 'seats',
@@ -796,9 +801,7 @@ class _ListForRentSheetState extends State<_ListForRentSheet> {
                     child: TextFormField(
                       controller: _rate,
                       keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: const InputDecoration(
                         labelText: 'Rate per day',
                         prefixText: '\u20B9 ',
@@ -818,7 +821,8 @@ class _ListForRentSheetState extends State<_ListForRentSheet> {
                 textCapitalization: TextCapitalization.sentences,
                 decoration: const InputDecoration(
                   labelText: 'Your terms (optional)',
-                  hintText: 'e.g. Renter fills fuel. \u20B92,000 deposit. '
+                  hintText:
+                      'e.g. Renter fills fuel. \u20B92,000 deposit. '
                       'Within Mandya district only.',
                   alignLabelWithHint: true,
                 ),
@@ -835,9 +839,7 @@ class _ListForRentSheetState extends State<_ListForRentSheet> {
               const SizedBox(height: 18),
               ElevatedButton(
                 onPressed: _busy ? null : () => _submit(user),
-                child: Text(
-                  _isEdit ? 'Save changes' : 'List for rent',
-                ),
+                child: Text(_isEdit ? 'Save changes' : 'List for rent'),
               ),
             ],
           ),

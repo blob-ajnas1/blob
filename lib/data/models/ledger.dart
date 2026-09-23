@@ -16,6 +16,10 @@ class LedgerEntry {
   final DateTime createdAt;
   final DateTime? clearedAt;
 
+  /// Payment gateway id (e.g. Razorpay `pay_xxx`) for reconciling against
+  /// the gateway dashboard. Null for entries settled outside the gateway.
+  final String? gatewayRef;
+
   const LedgerEntry({
     required this.id,
     required this.payerId,
@@ -29,6 +33,7 @@ class LedgerEntry {
     required this.createdAt,
     this.status = PaymentStatus.pending,
     this.clearedAt,
+    this.gatewayRef,
   });
 
   LedgerEntry copyWith({PaymentStatus? status, DateTime? clearedAt}) =>
@@ -45,6 +50,7 @@ class LedgerEntry {
         note: note,
         createdAt: createdAt,
         clearedAt: clearedAt ?? this.clearedAt,
+        gatewayRef: gatewayRef,
       );
 
   Map<String, dynamic> toMap() => {
@@ -60,6 +66,7 @@ class LedgerEntry {
     'note': note,
     'created_at': createdAt.toIso8601String(),
     'cleared_at': clearedAt?.toIso8601String(),
+    'gateway_ref': gatewayRef,
   };
 
   factory LedgerEntry.fromMap(Map<dynamic, dynamic> m) => LedgerEntry(
@@ -76,5 +83,6 @@ class LedgerEntry {
     createdAt:
         DateTime.tryParse(m['created_at'] as String? ?? '') ?? DateTime.now(),
     clearedAt: DateTime.tryParse(m['cleared_at'] as String? ?? ''),
+    gatewayRef: m['gateway_ref'] as String?,
   );
 }

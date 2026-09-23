@@ -203,10 +203,7 @@ void main() {
         Rbac.can(UserRole.vehicleRental, Permission.manageRentals),
         isTrue,
       );
-      expect(
-        Rbac.can(UserRole.propertyOwner, Permission.listProperty),
-        isTrue,
-      );
+      expect(Rbac.can(UserRole.propertyOwner, Permission.listProperty), isTrue);
       // Goods transport must not be able to run a taxi business.
       expect(Rbac.can(UserRole.transport, Permission.provideTaxi), isFalse);
     });
@@ -242,9 +239,28 @@ void main() {
       expect(AppLanguage.values.first, AppLanguage.english);
       // Every Eighth Schedule language must be present.
       const eighthSchedule = [
-        'as', 'bn', 'brx', 'doi', 'gu', 'hi', 'kn', 'ks', 'kok', 'mai',
-        'ml', 'mni', 'mr', 'ne', 'or', 'pa', 'sa', 'sat', 'sd', 'ta',
-        'te', 'ur',
+        'as',
+        'bn',
+        'brx',
+        'doi',
+        'gu',
+        'hi',
+        'kn',
+        'ks',
+        'kok',
+        'mai',
+        'ml',
+        'mni',
+        'mr',
+        'ne',
+        'or',
+        'pa',
+        'sa',
+        'sat',
+        'sd',
+        'ta',
+        'te',
+        'ur',
       ];
       final codes = AppLanguage.values.map((l) => l.code).toSet();
       for (final code in eighthSchedule) {
@@ -389,11 +405,14 @@ void main() {
   });
 
   group('Daily learning tasks', () {
-    test('targets match the spec: 15 min video, 3 maths rounds, 10 questions', () {
-      expect(DailyTaskType.video.target, 15);
-      expect(DailyTaskType.games.target, 3);
-      expect(DailyTaskType.quiz.target, 10);
-    });
+    test(
+      'targets match the spec: 15 min video, 3 maths rounds, 10 questions',
+      () {
+        expect(DailyTaskType.video.target, 15);
+        expect(DailyTaskType.games.target, 3);
+        expect(DailyTaskType.quiz.target, 10);
+      },
+    );
 
     test('every task type has a label, subtitle, unit and icon', () {
       for (final type in DailyTaskType.values) {
@@ -413,10 +432,16 @@ void main() {
         expect(q.question, isNotEmpty);
         expect(q.options.length, greaterThanOrEqualTo(2));
         expect(q.correctIndex, greaterThanOrEqualTo(0));
-        expect(q.correctIndex, lessThan(q.options.length),
-            reason: 'out-of-range answer for "${q.question}"');
-        expect(q.options.toSet().length, q.options.length,
-            reason: 'duplicate options for "${q.question}"');
+        expect(
+          q.correctIndex,
+          lessThan(q.options.length),
+          reason: 'out-of-range answer for "${q.question}"',
+        );
+        expect(
+          q.options.toSet().length,
+          q.options.length,
+          reason: 'duplicate options for "${q.question}"',
+        );
       }
     });
 
@@ -432,25 +457,37 @@ void main() {
         for (var attempt = 0; attempt < 8; attempt++) {
           final s = q.shuffled(rng);
           expect(s.question, q.question);
-          expect(s.options.toSet(), q.options.toSet(),
-              reason: 'shuffle dropped or invented an option');
+          expect(
+            s.options.toSet(),
+            q.options.toSet(),
+            reason: 'shuffle dropped or invented an option',
+          );
           expect(s.options.length, q.options.length);
-          expect(s.options[s.correctIndex], answer,
-              reason: 'shuffle broke the answer mapping');
+          expect(
+            s.options[s.correctIndex],
+            answer,
+            reason: 'shuffle broke the answer mapping',
+          );
           if (s.correctIndex != 0) moved++;
         }
       }
       // Across 80 shuffles the answer must land off slot A most of the time.
-      expect(moved, greaterThan(40),
-          reason: 'answers are not actually being redistributed');
+      expect(
+        moved,
+        greaterThan(40),
+        reason: 'answers are not actually being redistributed',
+      );
     });
 
     test('a shuffled quiz cannot be aced by always picking option A', () {
       final rng = Random(7);
       final quiz = [for (final q in LearningContent.dailyQuiz) q.shuffled(rng)];
       final alwaysA = quiz.where((q) => q.correctIndex == 0).length;
-      expect(alwaysA, lessThan(quiz.length),
-          reason: 'tapping A every time still scores full marks');
+      expect(
+        alwaysA,
+        lessThan(quiz.length),
+        reason: 'tapping A every time still scores full marks',
+      );
     });
 
     test('the video lesson is exactly the advertised fifteen minutes', () {
@@ -459,11 +496,16 @@ void main() {
 
     test('the games hub has enough content for a full round', () {
       expect(LearningContent.mathRounds, isNotEmpty);
-      expect(LearningContent.termPairs.length,
-          greaterThanOrEqualTo(DailyTaskType.games.target));
+      expect(
+        LearningContent.termPairs.length,
+        greaterThanOrEqualTo(DailyTaskType.games.target),
+      );
       for (final round in LearningContent.mathRounds) {
-        expect(round.options, contains(round.answer),
-            reason: 'unanswerable round: ${round.prompt}');
+        expect(
+          round.options,
+          contains(round.answer),
+          reason: 'unanswerable round: ${round.prompt}',
+        );
       }
     });
   });
@@ -667,8 +709,18 @@ void main() {
 
     test('education content carries no marketplace vocabulary', () {
       const banned = [
-        'crop', 'mandi', 'commission', 'harvest', 'quintal', 'fertiliser',
-        'soil', 'labour', 'labourer', 'export', 'broker', 'tractor',
+        'crop',
+        'mandi',
+        'commission',
+        'harvest',
+        'quintal',
+        'fertiliser',
+        'soil',
+        'labour',
+        'labourer',
+        'export',
+        'broker',
+        'tractor',
       ];
       final pack = TaskContentPack.education;
       final corpus = [
@@ -701,18 +753,26 @@ void main() {
       expect(pack.quiz.length, 10);
 
       for (final r in pack.mathRounds) {
-        expect(r.options, contains(r.answer),
-            reason: 'unanswerable round: ${r.prompt}');
-        expect(r.options.toSet().length, r.options.length,
-            reason: 'duplicate options: ${r.prompt}');
+        expect(
+          r.options,
+          contains(r.answer),
+          reason: 'unanswerable round: ${r.prompt}',
+        );
+        expect(
+          r.options.toSet().length,
+          r.options.length,
+          reason: 'duplicate options: ${r.prompt}',
+        );
       }
     });
 
     test('switching account type can clear a marketplace specialisation', () {
       // copyWith's `??` pattern cannot express "set back to null", which the
       // switch to the student track needs.
-      final buyer = userWith(UserCategory.jobSeeker, UserRole.buyer)
-          .copyWith(subtype: RoleSubtype.retailMarketBuyer);
+      final buyer = userWith(
+        UserCategory.jobSeeker,
+        UserRole.buyer,
+      ).copyWith(subtype: RoleSubtype.retailMarketBuyer);
       expect(buyer.subtype, isNotNull);
 
       final student = buyer.copyWith(
@@ -994,8 +1054,9 @@ void main() {
       // The "no invalid names" guarantee is structural: if a TextFormField
       // for district or city reappeared in signup, free text would flow
       // straight back into the records the map depends on.
-      final source =
-          File('lib/ui/auth/role_selection_screen.dart').readAsStringSync();
+      final source = File(
+        'lib/ui/auth/role_selection_screen.dart',
+      ).readAsStringSync();
       expect(source, contains('LocationPicker('));
       expect(source, contains('CountryPicker('));
       for (final banned in const [
@@ -1014,8 +1075,9 @@ void main() {
     test('student goals are optional', () {
       // A student who has not decided what to become must still be able to
       // finish signing up.
-      final source =
-          File('lib/ui/auth/student_details_screen.dart').readAsStringSync();
+      final source = File(
+        'lib/ui/auth/student_details_screen.dart',
+      ).readAsStringSync();
       expect(source, isNot(contains("_required(v, 'Goals')")));
       expect(source, isNot(contains('at least 15 characters')));
       expect(source, contains("_FieldLabel('Your goals & aspirations'"));
@@ -1060,7 +1122,10 @@ void main() {
       // marketplace capability by design, and renting a vehicle is squarely
       // a marketplace act, so the education app must not gain a rental
       // surface through this feature.
-      expect(Rbac.can(UserRole.student, Permission.listVehicleForRent), isFalse);
+      expect(
+        Rbac.can(UserRole.student, Permission.listVehicleForRent),
+        isFalse,
+      );
       expect(Rbac.can(UserRole.student, Permission.rentVehicle), isFalse);
       expect(Rbac.of(UserRole.student), isEmpty);
       expect(Rbac.peerRentalRoles, isNot(contains(UserRole.student)));
@@ -1190,8 +1255,9 @@ void main() {
     test('both directions of rental are reachable from one screen', () {
       // The same person rents in one season and lends in another, so lending
       // must not be buried behind a separate, more official-looking route.
-      final hub =
-          File('lib/ui/transport/rental_hub_screen.dart').readAsStringSync();
+      final hub = File(
+        'lib/ui/transport/rental_hub_screen.dart',
+      ).readAsStringSync();
       expect(hub, contains("text: 'Rent'"));
       expect(hub, contains("text: 'Lend'"));
       expect(hub, contains('listVehicleForRent'));
@@ -1209,8 +1275,9 @@ void main() {
     test('rental listings derive their district, never ask for it', () {
       // Every mappable place in BLOB comes from the owner's account. A rate
       // field is safe to type; a place name is not.
-      final controller =
-          File('lib/state/marketplace_controller.dart').readAsStringSync();
+      final controller = File(
+        'lib/state/marketplace_controller.dart',
+      ).readAsStringSync();
       final method = controller.substring(
         controller.indexOf('Future<Vehicle> listVehicleForRent('),
         controller.indexOf('List<Vehicle> rentableVehicles('),
@@ -1219,8 +1286,9 @@ void main() {
       expect(method, contains('peerListed: true'));
       expect(method, contains('VehicleCategory.rental'));
 
-      final hub =
-          File('lib/ui/transport/rental_hub_screen.dart').readAsStringSync();
+      final hub = File(
+        'lib/ui/transport/rental_hub_screen.dart',
+      ).readAsStringSync();
       expect(hub, isNot(contains('_district')));
     });
   });
@@ -1229,8 +1297,9 @@ void main() {
     test('the lesson skip button is compiled out of release builds', () {
       // It awards a full lesson's points without the lesson, so shipping it
       // would make every points total and leaderboard position meaningless.
-      final source =
-          File('lib/ui/learning/video_task_screen.dart').readAsStringSync();
+      final source = File(
+        'lib/ui/learning/video_task_screen.dart',
+      ).readAsStringSync();
       expect(source, isNot(contains('demo only')));
       expect(source, contains('kDebugMode && !_isComplete'));
     });
@@ -1239,8 +1308,9 @@ void main() {
       // The sheet signs into ANY account on the device, administrators
       // included, with no password or OTP. In a release build that is a
       // complete authentication bypass.
-      final source =
-          File('lib/ui/profile/profile_screen.dart').readAsStringSync();
+      final source = File(
+        'lib/ui/profile/profile_screen.dart',
+      ).readAsStringSync();
       expect(source, isNot(contains("title: 'Switch demo account'")));
       expect(source, contains('if (kDebugMode)'));
 

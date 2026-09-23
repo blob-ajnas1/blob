@@ -29,10 +29,12 @@ class ListingDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = context.watch<SessionController>().user!;
     final market = context.watch<MarketplaceController>();
-    final canBuy = user.can(Permission.buyProducts) &&
+    final canBuy =
+        user.can(Permission.buyProducts) &&
         listing.ownerId != user.id &&
         listing.status == ListingStatus.active;
-    final canInvest = user.can(Permission.investInProjects) &&
+    final canInvest =
+        user.can(Permission.investInProjects) &&
         listing.status == ListingStatus.active;
 
     return Scaffold(
@@ -219,8 +221,10 @@ class ListingDetailScreen extends StatelessWidget {
                   initialValue: chosenBroker,
                   isExpanded: true,
                   decoration: const InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                   ),
                   hint: const Text('No broker'),
                   items: [
@@ -246,9 +250,7 @@ class ListingDetailScreen extends StatelessWidget {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(110, 44),
-              ),
+              style: ElevatedButton.styleFrom(minimumSize: const Size(110, 44)),
               onPressed: () => Navigator.of(dialogContext).pop(true),
               child: const Text('Confirm'),
             ),
@@ -312,8 +314,9 @@ class ListingDetailScreen extends StatelessWidget {
             style: ElevatedButton.styleFrom(minimumSize: const Size(110, 44)),
             onPressed: () {
               final rupees = int.tryParse(controller.text.trim()) ?? 0;
-              Navigator.of(dialogContext)
-                  .pop(rupees > 0 ? Money.rupeesToPaise(rupees) : null);
+              Navigator.of(
+                dialogContext,
+              ).pop(rupees > 0 ? Money.rupeesToPaise(rupees) : null);
             },
             child: const Text('Invest'),
           ),

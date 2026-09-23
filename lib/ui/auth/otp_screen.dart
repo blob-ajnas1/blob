@@ -159,7 +159,8 @@ class _OtpScreenState extends State<OtpScreen> {
               if (!session.usesRealSms && session.devCode != null)
                 InfoBanner(
                   icon: Icons.developer_mode,
-                  message: 'Test mode — your code is ${session.devCode}. '
+                  message:
+                      'Test mode — your code is ${session.devCode}. '
                       'Live SMS delivery activates once the SMS gateway keys '
                       'are supplied at build time.',
                   color: AppColors.warning,
@@ -168,7 +169,8 @@ class _OtpScreenState extends State<OtpScreen> {
               else
                 const InfoBanner(
                   icon: Icons.sms_outlined,
-                  message: 'We sent the code by SMS. It may take a few '
+                  message:
+                      'We sent the code by SMS. It may take a few '
                       'seconds to arrive.',
                 ),
               const SizedBox(height: 16),

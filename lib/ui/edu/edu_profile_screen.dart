@@ -176,7 +176,8 @@ class EduProfileScreen extends StatelessWidget {
                     _Tile(
                       icon: Icons.verified_user_outlined,
                       title: 'Aadhaar',
-                      subtitle: 'Verified \u00b7 xxxx xxxx ${user.aadhaarLast4}',
+                      subtitle:
+                          'Verified \u00b7 xxxx xxxx ${user.aadhaarLast4}',
                     ),
                   _Tile(
                     icon: Icons.language,
@@ -338,8 +339,9 @@ class _ProfileHeader extends StatelessWidget {
                               decoration: Gazetteer.isKnown(place)
                                   ? TextDecoration.underline
                                   : null,
-                              decorationColor:
-                                  Colors.white.withValues(alpha: 0.5),
+                              decorationColor: Colors.white.withValues(
+                                alpha: 0.5,
+                              ),
                             ),
                           ),
                         ),
@@ -359,11 +361,7 @@ class _ProfileHeader extends StatelessWidget {
 /// A plain count tile. The shared [StatTile] renders money (it takes
 /// `amountPaise`), which is wrong for points, streaks and ranks.
 class _Metric extends StatelessWidget {
-  const _Metric({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
+  const _Metric({required this.icon, required this.label, required this.value});
 
   final IconData icon;
   final String label;
@@ -524,8 +522,7 @@ class _Tile extends StatelessWidget {
               : const Icon(Icons.chevron_right, color: AppColors.textSecondary),
           onTap: onTap,
         ),
-        if (!isLast)
-          const Divider(height: 1, indent: 16, endIndent: 16),
+        if (!isLast) const Divider(height: 1, indent: 16, endIndent: 16),
       ],
     );
   }

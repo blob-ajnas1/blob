@@ -120,8 +120,7 @@ class _PreviewCard extends StatelessWidget {
         border: Border.all(color: AppColors.border),
       ),
       child: Directionality(
-        textDirection:
-            language.isRtl ? TextDirection.rtl : TextDirection.ltr,
+        textDirection: language.isRtl ? TextDirection.rtl : TextDirection.ltr,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -145,8 +144,11 @@ class _PreviewCard extends StatelessWidget {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  const Icon(Icons.info_outline,
-                      size: 15, color: AppColors.textSecondary),
+                  const Icon(
+                    Icons.info_outline,
+                    size: 15,
+                    color: AppColors.textSecondary,
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(

@@ -21,26 +21,56 @@ class RoleMeta {
 }
 
 const kRoleMeta = <RoleMeta>[
-  RoleMeta(UserRole.landowner, Icons.agriculture,
-      'Sell your crops, hire workers, find investors'),
-  RoleMeta(UserRole.buyer, Icons.shopping_basket,
-      'Buy from farmers, resell to exporters, hire crews'),
-  RoleMeta(UserRole.laborer, Icons.engineering,
-      'Find work — alone or as a group'),
-  RoleMeta(UserRole.broker, Icons.handshake,
-      'Facilitate deals and earn commission'),
-  RoleMeta(UserRole.transport, Icons.local_shipping,
-      'Move harvest and goods with pickups or heavy trucks'),
-  RoleMeta(UserRole.foreignInvestor, Icons.trending_up,
-      'Invest in local agricultural projects'),
-  RoleMeta(UserRole.globalExporter, Icons.public,
-      'Registered company buying and shipping produce'),
-  RoleMeta(UserRole.taxiService, Icons.local_taxi,
-      'Run autos, cabs or traveller buses for passengers'),
-  RoleMeta(UserRole.vehicleRental, Icons.vpn_key,
-      'Rent out cars, jeeps, SUVs, bikes and scooters'),
-  RoleMeta(UserRole.propertyOwner, Icons.home_work,
-      'Lease farm land, commercial space or housing'),
+  RoleMeta(
+    UserRole.landowner,
+    Icons.agriculture,
+    'Sell your crops, hire workers, find investors',
+  ),
+  RoleMeta(
+    UserRole.buyer,
+    Icons.shopping_basket,
+    'Buy from farmers, resell to exporters, hire crews',
+  ),
+  RoleMeta(
+    UserRole.laborer,
+    Icons.engineering,
+    'Find work — alone or as a group',
+  ),
+  RoleMeta(
+    UserRole.broker,
+    Icons.handshake,
+    'Facilitate deals and earn commission',
+  ),
+  RoleMeta(
+    UserRole.transport,
+    Icons.local_shipping,
+    'Move harvest and goods with pickups or heavy trucks',
+  ),
+  RoleMeta(
+    UserRole.foreignInvestor,
+    Icons.trending_up,
+    'Invest in local agricultural projects',
+  ),
+  RoleMeta(
+    UserRole.globalExporter,
+    Icons.public,
+    'Registered company buying and shipping produce',
+  ),
+  RoleMeta(
+    UserRole.taxiService,
+    Icons.local_taxi,
+    'Run autos, cabs or traveller buses for passengers',
+  ),
+  RoleMeta(
+    UserRole.vehicleRental,
+    Icons.vpn_key,
+    'Rent out cars, jeeps, SUVs, bikes and scooters',
+  ),
+  RoleMeta(
+    UserRole.propertyOwner,
+    Icons.home_work,
+    'Lease farm land, commercial space or housing',
+  ),
 ];
 
 /// Whether this screen is part of signup or is changing an existing account.
@@ -120,8 +150,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                             : AppColors.surface,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color:
-                              selected ? AppColors.primary : AppColors.border,
+                          color: selected
+                              ? AppColors.primary
+                              : AppColors.border,
                           width: selected ? 2 : 1,
                         ),
                       ),
@@ -196,15 +227,15 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                 onPressed: _selected == null
                     ? null
                     : () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => ProfileSetupScreen(
-                              role: _selected!,
-                              category: widget.category,
-                              studentDetails: widget.studentDetails,
-                              mode: widget.mode,
-                            ),
+                        MaterialPageRoute<void>(
+                          builder: (_) => ProfileSetupScreen(
+                            role: _selected!,
+                            category: widget.category,
+                            studentDetails: widget.studentDetails,
+                            mode: widget.mode,
                           ),
                         ),
+                      ),
                 child: Text(session.t('continue_label')),
               ),
             ),
@@ -282,8 +313,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         // Older accounts stored only a district. Recover the state from the
         // gazetteer so the dropdown chain opens already populated instead of
         // forcing the user to re-pick a district they already have.
-        _stateName =
-            user.stateName ?? Gazetteer.stateOfDistrict(user.district);
+        _stateName = user.stateName ?? Gazetteer.stateOfDistrict(user.district);
       }
     }
   }
@@ -327,8 +357,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       city: _city,
       laborerType: _needsCrewSize ? _laborerType : null,
       companyName: _company.text.trim().isEmpty ? null : _company.text.trim(),
-      registrationNo:
-          _registration.text.trim().isEmpty ? null : _registration.text.trim(),
+      registrationNo: _registration.text.trim().isEmpty
+          ? null
+          : _registration.text.trim(),
       country: _country,
       category: widget.category,
     );
@@ -367,8 +398,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         city: _city,
         laborerType: _needsCrewSize ? _laborerType : null,
         companyName: _company.text.trim().isEmpty ? null : _company.text.trim(),
-        registrationNo:
-            _registration.text.trim().isEmpty ? null : _registration.text.trim(),
+        registrationNo: _registration.text.trim().isEmpty
+            ? null
+            : _registration.text.trim(),
         country: _country,
         category: UserCategory.jobSeeker,
         // A role that needs vetting must go back to pending; silently keeping
@@ -542,8 +574,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       labelText: _isExporter
                           ? 'Registered company name'
                           : _isCommercialOperator
-                              ? 'Business / travels name'
-                              : 'Entity / fund name (optional)',
+                          ? 'Business / travels name'
+                          : 'Entity / fund name (optional)',
                       prefixIcon: const Icon(Icons.business_outlined),
                     ),
                     validator: (v) {

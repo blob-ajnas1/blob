@@ -58,8 +58,7 @@ class Vehicle {
   };
 
   /// Rentals are billed by the day, transport and taxis by the kilometre.
-  int get ratePaise =>
-      category.isDailyRate ? ratePerDayPaise : ratePerKmPaise;
+  int get ratePaise => category.isDailyRate ? ratePerDayPaise : ratePerKmPaise;
 
   String get rateUnit => category.isDailyRate ? 'day' : 'km';
 

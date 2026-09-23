@@ -53,13 +53,13 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
     setState(() => _saving = true);
 
     await context.read<MarketplaceController>().createListing(
-          owner: user,
-          cropName: _crop.text.trim(),
-          description: _desc.text.trim(),
-          quantityQuintal: double.parse(_qty.text),
-          pricePerQuintalPaise: Money.rupeesToPaise(double.parse(_price.text)),
-          channel: _channel,
-        );
+      owner: user,
+      cropName: _crop.text.trim(),
+      description: _desc.text.trim(),
+      quantityQuintal: double.parse(_qty.text),
+      pricePerQuintalPaise: Money.rupeesToPaise(double.parse(_price.text)),
+      channel: _channel,
+    );
 
     if (!mounted) return;
     showSnack(context, 'Listing published');
@@ -87,8 +87,9 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                     prefixIcon: Icon(Icons.grass),
                     hintText: 'e.g. Paddy (Sona Masuri)',
                   ),
-                  validator: (v) =>
-                      (v?.trim().isEmpty ?? true) ? 'Enter the crop name' : null,
+                  validator: (v) => (v?.trim().isEmpty ?? true)
+                      ? 'Enter the crop name'
+                      : null,
                 ),
                 const SizedBox(height: 14),
                 TextFormField(
@@ -109,8 +110,9 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _qty,
-                        keyboardType:
-                            const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
                             RegExp(r'^\d*\.?\d{0,2}'),
@@ -131,8 +133,9 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _price,
-                        keyboardType:
-                            const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
                             RegExp(r'^\d*\.?\d{0,2}'),
@@ -175,8 +178,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                     ),
                   ],
                   selected: {_channel},
-                  onSelectionChanged: (s) =>
-                      setState(() => _channel = s.first),
+                  onSelectionChanged: (s) => setState(() => _channel = s.first),
                   style: SegmentedButton.styleFrom(
                     selectedBackgroundColor: AppColors.primary,
                     selectedForegroundColor: Colors.white,

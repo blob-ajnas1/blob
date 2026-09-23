@@ -100,7 +100,8 @@ class _NotificationBell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final market = context.watch<MarketplaceController>();
-    final pendingMoney = market.pendingIncomingPaise(user.id) > 0 ||
+    final pendingMoney =
+        market.pendingIncomingPaise(user.id) > 0 ||
         market.pendingOutgoingPaise(user.id) > 0;
     final hasAlert = user.isPending || pendingMoney;
 
@@ -164,7 +165,8 @@ class DashboardHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final market = context.watch<MarketplaceController>();
     final session = context.watch<SessionController>();
-    final isPayer = user.role == UserRole.buyer ||
+    final isPayer =
+        user.role == UserRole.buyer ||
         user.role == UserRole.globalExporter ||
         user.role == UserRole.foreignInvestor;
 
@@ -172,8 +174,9 @@ class DashboardHeader extends StatelessWidget {
     final primaryPaise = isPayer
         ? market.clearedOutgoingPaise(user.id)
         : market.clearedIncomingPaise(user.id);
-    final secondaryPaise =
-        isPayer ? market.pendingOutgoingPaise(user.id) : market.pendingIncomingPaise(user.id);
+    final secondaryPaise = isPayer
+        ? market.pendingOutgoingPaise(user.id)
+        : market.pendingIncomingPaise(user.id);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 18, 14, 18),
@@ -390,10 +393,7 @@ class QuickActionsGrid extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: pageInset),
           itemCount: actions.length,
           separatorBuilder: (_, __) => const SizedBox(width: _gap),
-          itemBuilder: (_, i) => SizedBox(
-            width: _tileWidth,
-            child: actions[i],
-          ),
+          itemBuilder: (_, i) => SizedBox(width: _tileWidth, child: actions[i]),
         ),
       ),
     );
@@ -544,10 +544,7 @@ class ListingCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(
-                Icons.chevron_right,
-                color: AppColors.textSecondary,
-              ),
+              const Icon(Icons.chevron_right, color: AppColors.textSecondary),
             ],
           ),
         ),
@@ -583,9 +580,7 @@ class CropThumb extends StatelessWidget {
         width: width,
         height: height,
         color: AppColors.primarySoft,
-        child: Center(
-          child: Icon(Icons.grass, color: AppColors.primary),
-        ),
+        child: Center(child: Icon(Icons.grass, color: AppColors.primary)),
       ),
     );
   }
@@ -744,9 +739,10 @@ class _ListingOverflowMenu extends StatelessWidget {
         tooltip: 'Listing options',
         constraints: const BoxConstraints(minWidth: 168),
         onSelected: (status) async {
-          await context
-              .read<MarketplaceController>()
-              .updateListingStatus(listing, status);
+          await context.read<MarketplaceController>().updateListingStatus(
+            listing,
+            status,
+          );
           if (!context.mounted) return;
           showSnack(context, 'Listing marked ${status.label.toLowerCase()}.');
         },
@@ -1245,8 +1241,7 @@ class BookingCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                if (providerView &&
-                    booking.status == BookingStatus.requested)
+                if (providerView && booking.status == BookingStatus.requested)
                   TextButton(
                     onPressed: () => market.updateBookingStatus(
                       booking,
@@ -1583,7 +1578,8 @@ class PropertyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = context.watch<SessionController>().user!;
     final isOwner = property.ownerId == user.id;
-    final canEnquire = !isOwner &&
+    final canEnquire =
+        !isOwner &&
         property.status == ListingStatus.active &&
         user.can(Permission.browseProperty);
 
@@ -1786,10 +1782,7 @@ Future<void> _openEnquirySheet(
           children: [
             Text(
               property.title,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w900,
-              ),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 4),
             Text(
@@ -1902,16 +1895,13 @@ class EnquiryCard extends StatelessWidget {
   final PropertyEnquiry enquiry;
   final bool ownerView;
 
-  const EnquiryCard({
-    super.key,
-    required this.enquiry,
-    this.ownerView = false,
-  });
+  const EnquiryCard({super.key, required this.enquiry, this.ownerView = false});
 
   @override
   Widget build(BuildContext context) {
     final market = context.read<MarketplaceController>();
-    final open = enquiry.status == EnquiryStatus.open ||
+    final open =
+        enquiry.status == EnquiryStatus.open ||
         enquiry.status == EnquiryStatus.shortlisted;
 
     return Padding(
@@ -1993,10 +1983,8 @@ class EnquiryCard extends StatelessWidget {
                     ),
                   const SizedBox(width: 6),
                   FilledButton(
-                    onPressed: () => market.setEnquiryStatus(
-                      enquiry,
-                      EnquiryStatus.agreed,
-                    ),
+                    onPressed: () =>
+                        market.setEnquiryStatus(enquiry, EnquiryStatus.agreed),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                     ),

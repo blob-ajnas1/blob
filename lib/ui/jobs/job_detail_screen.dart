@@ -34,9 +34,9 @@ class JobDetailScreen extends StatelessWidget {
 
     final isOwner = job.posterId == user.id;
     final apps = market.applicationsForJob(job.id);
-    final myApp =
-        apps.where((a) => a.laborerId == user.id).firstOrNull;
-    final canApply = user.can(Permission.applyToJobs) &&
+    final myApp = apps.where((a) => a.laborerId == user.id).firstOrNull;
+    final canApply =
+        user.can(Permission.applyToJobs) &&
         job.status == JobStatus.open &&
         myApp == null;
 
@@ -184,9 +184,7 @@ class JobDetailScreen extends StatelessWidget {
                   style: TextStyle(color: AppColors.textSecondary),
                 )
               else
-                ...apps.map(
-                  (a) => _ApplicantRow(application: a, job: job),
-                ),
+                ...apps.map((a) => _ApplicantRow(application: a, job: job)),
             ],
           ],
         ),
@@ -222,10 +220,7 @@ class _InfoTile extends StatelessWidget {
           FittedBox(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-              ),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
             ),
           ),
           const SizedBox(height: 2),
@@ -268,11 +263,7 @@ class _ApplicantRow extends StatelessWidget {
                 CircleAvatar(
                   radius: 18,
                   backgroundColor: AppColors.primarySoft,
-                  child: Icon(
-                    Icons.person,
-                    size: 20,
-                    color: AppColors.primary,
-                  ),
+                  child: Icon(Icons.person, size: 20, color: AppColors.primary),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

@@ -84,8 +84,10 @@ extension DailyTaskTypeX on DailyTaskType {
     DailyTaskType.quiz => 40,
   };
 
-  static DailyTaskType fromId(String value) => DailyTaskType.values
-      .firstWhere((e) => e.name == value, orElse: () => DailyTaskType.video);
+  static DailyTaskType fromId(String value) => DailyTaskType.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => DailyTaskType.video,
+  );
 }
 
 /// Academic background captured in Step 3 (students only).
@@ -164,11 +166,9 @@ class DailyProgress {
 
   bool isComplete(DailyTaskType type) => progressFor(type) >= type.target;
 
-  bool get allComplete =>
-      DailyTaskType.values.every(isComplete);
+  bool get allComplete => DailyTaskType.values.every(isComplete);
 
-  int get completedCount =>
-      DailyTaskType.values.where(isComplete).length;
+  int get completedCount => DailyTaskType.values.where(isComplete).length;
 
   /// 0.0 – 1.0 across all three tasks.
   double get overallFraction {

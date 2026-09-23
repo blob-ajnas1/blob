@@ -24,8 +24,10 @@ class CropImages {
     (['coffee', 'arabica', 'robusta', 'parchment'], coffee),
     (['ragi', 'millet', 'jowar', 'bajra'], ragi),
     (['sugarcane', 'cane', 'sugar'], sugarcane),
-    (['paddy', 'rice', 'sona', 'masuri', 'wheat', 'grain', 'maize', 'corn'],
-        paddy),
+    (
+      ['paddy', 'rice', 'sona', 'masuri', 'wheat', 'grain', 'maize', 'corn'],
+      paddy,
+    ),
   ];
 
   /// Best-effort photo for [cropName]; never returns null so cards always

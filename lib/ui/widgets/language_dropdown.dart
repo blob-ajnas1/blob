@@ -61,8 +61,7 @@ class LanguageDropdown extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.language,
-                      size: 22, color: AppColors.primary),
+                  Icon(Icons.language, size: 22, color: AppColors.primary),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -87,8 +86,10 @@ class LanguageDropdown extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Icon(Icons.keyboard_arrow_down_rounded,
-                      color: AppColors.textSecondary),
+                  const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textSecondary,
+                  ),
                 ],
               ),
             ),
@@ -114,10 +115,12 @@ class _LanguageSheetState extends State<_LanguageSheet> {
     final q = _query.trim().toLowerCase();
     if (q.isEmpty) return AppLanguage.values;
     return AppLanguage.values
-        .where((l) =>
-            l.englishName.toLowerCase().contains(q) ||
-            l.nativeName.toLowerCase().contains(q) ||
-            l.code.toLowerCase() == q)
+        .where(
+          (l) =>
+              l.englishName.toLowerCase().contains(q) ||
+              l.nativeName.toLowerCase().contains(q) ||
+              l.code.toLowerCase() == q,
+        )
         .toList();
   }
 
@@ -229,8 +232,10 @@ class _LanguageSheetState extends State<_LanguageSheet> {
                             ),
                           ),
                           trailing: isSelected
-                              ? Icon(Icons.check_circle,
-                                  color: AppColors.primary)
+                              ? Icon(
+                                  Icons.check_circle,
+                                  color: AppColors.primary,
+                                )
                               : null,
                         );
                       },

@@ -87,7 +87,8 @@ class PropertyListing {
     id: m['id'] as String? ?? '',
     ownerId: m['owner_id'] as String? ?? '',
     ownerName: m['owner_name'] as String? ?? '',
-    kind: RoleSubtypeX.tryFromId(m['kind'] as String?) ??
+    kind:
+        RoleSubtypeX.tryFromId(m['kind'] as String?) ??
         RoleSubtype.agricultureLandLease,
     title: m['title'] as String? ?? '',
     description: m['description'] as String? ?? '',
@@ -100,7 +101,7 @@ class PropertyListing {
     status: ListingStatusX.fromId(m['status'] as String? ?? 'active'),
     availableFrom:
         DateTime.tryParse(m['available_from'] as String? ?? '') ??
-            DateTime.now(),
+        DateTime.now(),
     createdAt:
         DateTime.tryParse(m['created_at'] as String? ?? '') ?? DateTime.now(),
   );

@@ -74,8 +74,7 @@ class Listing {
     cropName: m['crop_name'] as String? ?? '',
     description: m['description'] as String? ?? '',
     quantityQuintal: (m['quantity_quintal'] as num?)?.toDouble() ?? 0,
-    pricePerQuintalPaise:
-        (m['price_per_quintal_paise'] as num?)?.toInt() ?? 0,
+    pricePerQuintalPaise: (m['price_per_quintal_paise'] as num?)?.toInt() ?? 0,
     district: m['district'] as String? ?? '',
     channel: ListingChannelX.fromId(m['channel'] as String? ?? 'toBuyers'),
     status: ListingStatusX.fromId(m['status'] as String? ?? 'active'),

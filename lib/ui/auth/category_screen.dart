@@ -27,17 +27,14 @@ class _CategoryScreenState extends State<CategoryScreen> {
     }
     if (category.needsAcademicProfile) {
       Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => const StudentDetailsScreen(),
-        ),
+        MaterialPageRoute<void>(builder: (_) => const StudentDetailsScreen()),
       );
     } else {
       // Job seekers skip the academic form and go straight to role setup.
       Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (_) => const RoleSelectionScreen(
-            category: UserCategory.jobSeeker,
-          ),
+          builder: (_) =>
+              const RoleSelectionScreen(category: UserCategory.jobSeeker),
         ),
       );
     }

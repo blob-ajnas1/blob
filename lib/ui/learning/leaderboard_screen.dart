@@ -77,9 +77,9 @@ class LeaderboardScreen extends StatelessWidget {
                         icon: Icons.trending_up_rounded,
                         message: myPoints == 0
                             ? 'You are not ranked yet \u2014 finish one task '
-                                'today to appear here.'
+                                  'today to appear here.'
                             : 'You have $myPoints points. Keep going to enter '
-                                'the top 50.',
+                                  'the top 50.',
                       ),
                     ),
                   ],
@@ -206,9 +206,7 @@ class _PodiumColumn extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             color: rank == 1 ? AppColors.primary : AppColors.primarySoft,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(8),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
           ),
           alignment: Alignment.topCenter,
           padding: const EdgeInsets.only(top: 8),
@@ -217,9 +215,7 @@ class _PodiumColumn extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
-              color: rank == 1
-                  ? AppColors.textOnPrimary
-                  : AppColors.primary,
+              color: rank == 1 ? AppColors.textOnPrimary : AppColors.primary,
             ),
           ),
         ),

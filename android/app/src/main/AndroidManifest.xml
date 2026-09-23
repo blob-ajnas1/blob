@@ -56,6 +56,12 @@
         <package android:name="com.kiloo.subwaysurf" />
         <package android:name="com.bravestars.savethedog.drawgame" />
         <package android:name="com.tower.rush.goldtier.ascend" />
+        <!-- Razorpay UPI intent flow: lets checkout discover installed UPI
+             apps (GPay, PhonePe, Paytm, BHIM) on Android 11+. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="upi" />
+        </intent>
     </queries>
 </manifest>
 

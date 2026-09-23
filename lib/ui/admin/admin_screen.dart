@@ -24,12 +24,10 @@ class _AdminScreenState extends State<AdminScreen> {
   Widget build(BuildContext context) {
     final market = context.watch<MarketplaceController>();
     final pending = market.pendingApprovals();
-    final brokers = market
-        .users
+    final brokers = market.users
         .where((u) => u.role == UserRole.broker)
         .toList();
-    final exporters = market
-        .users
+    final exporters = market.users
         .where((u) => u.role == UserRole.globalExporter)
         .toList();
 
@@ -49,7 +47,10 @@ class _AdminScreenState extends State<AdminScreen> {
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
               child: SegmentedButton<int>(
                 segments: [
-                  ButtonSegment(value: 0, label: Text('Pending (${pending.length})')),
+                  ButtonSegment(
+                    value: 0,
+                    label: Text('Pending (${pending.length})'),
+                  ),
                   const ButtonSegment(value: 1, label: Text('Brokers')),
                   const ButtonSegment(value: 2, label: Text('Exporters')),
                 ],
@@ -112,24 +113,20 @@ class _AdminScreenState extends State<AdminScreen> {
                                             child: Text(
                                               '${u.roleLine} · ',
                                               maxLines: 1,
-                                              overflow:
-                                                  TextOverflow.ellipsis,
+                                              overflow: TextOverflow.ellipsis,
                                               style: const TextStyle(
                                                 fontSize: 12.5,
-                                                color:
-                                                    AppColors.textSecondary,
+                                                color: AppColors.textSecondary,
                                               ),
                                             ),
                                           ),
                                           PlaceLink(
                                             name: u.district,
-                                            subtitle:
-                                                u.companyName ?? u.name,
+                                            subtitle: u.companyName ?? u.name,
                                             iconSize: 12,
                                             style: const TextStyle(
                                               fontSize: 12.5,
-                                              color:
-                                                  AppColors.textSecondary,
+                                              color: AppColors.textSecondary,
                                             ),
                                           ),
                                         ],

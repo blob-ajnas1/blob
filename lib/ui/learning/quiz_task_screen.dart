@@ -100,9 +100,7 @@ class _QuizTaskScreenState extends State<QuizTaskScreen> {
                 onPressed: _confirmExit,
               ),
       ),
-      body: SafeArea(
-        child: _finished ? _buildResult() : _buildQuestion(),
-      ),
+      body: SafeArea(child: _finished ? _buildResult() : _buildQuestion()),
     );
   }
 
@@ -168,10 +166,10 @@ class _QuizTaskScreenState extends State<QuizTaskScreen> {
                     state: !answered
                         ? _AnswerState.idle
                         : i == question.correctIndex
-                            ? _AnswerState.correct
-                            : i == _picked
-                                ? _AnswerState.wrong
-                                : _AnswerState.dimmed,
+                        ? _AnswerState.correct
+                        : i == _picked
+                        ? _AnswerState.wrong
+                        : _AnswerState.dimmed,
                     onTap: () => _pick(i),
                   ),
                   const SizedBox(height: 10),
@@ -224,20 +222,20 @@ class _QuizTaskScreenState extends State<QuizTaskScreen> {
     // discouraging a learner who scored 4/10 is counterproductive.
     final (headline, message, color) = switch (pct) {
       >= 90 => (
-          'Excellent',
-          'You have this material down. Try tomorrow\u2019s quiz for a harder set.',
-          AppColors.success,
-        ),
+        'Excellent',
+        'You have this material down. Try tomorrow\u2019s quiz for a harder set.',
+        AppColors.success,
+      ),
       >= 60 => (
-          'Well done',
-          'A solid score. Review the explanations you missed and it will stick.',
-          AppColors.primary,
-        ),
+        'Well done',
+        'A solid score. Review the explanations you missed and it will stick.',
+        AppColors.primary,
+      ),
       _ => (
-          'Good effort',
-          'Rewatch today\u2019s video — the answers you missed are covered in it.',
-          AppColors.warning,
-        ),
+        'Good effort',
+        'Rewatch today\u2019s video — the answers you missed are covered in it.',
+        AppColors.warning,
+      ),
     };
 
     return SingleChildScrollView(
@@ -430,25 +428,25 @@ class _AnswerTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final (bg, border, fg) = switch (state) {
       _AnswerState.idle => (
-          AppColors.card,
-          AppColors.border,
-          AppColors.textPrimary,
-        ),
+        AppColors.card,
+        AppColors.border,
+        AppColors.textPrimary,
+      ),
       _AnswerState.correct => (
-          AppColors.clearedSoft,
-          AppColors.success,
-          AppColors.success,
-        ),
+        AppColors.clearedSoft,
+        AppColors.success,
+        AppColors.success,
+      ),
       _AnswerState.wrong => (
-          AppColors.dangerSoft,
-          AppColors.danger,
-          AppColors.danger,
-        ),
+        AppColors.dangerSoft,
+        AppColors.danger,
+        AppColors.danger,
+      ),
       _AnswerState.dimmed => (
-          AppColors.background,
-          AppColors.border,
-          AppColors.textSecondary,
-        ),
+        AppColors.background,
+        AppColors.border,
+        AppColors.textSecondary,
+      ),
     };
 
     return Material(
@@ -483,9 +481,7 @@ class _AnswerTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
-                    color: state == _AnswerState.idle
-                        ? AppColors.primary
-                        : fg,
+                    color: state == _AnswerState.idle ? AppColors.primary : fg,
                   ),
                 ),
               ),
@@ -543,9 +539,7 @@ class _Explanation extends StatelessWidget {
           Row(
             children: [
               Icon(
-                correct
-                    ? Icons.thumb_up_alt_rounded
-                    : Icons.lightbulb_rounded,
+                correct ? Icons.thumb_up_alt_rounded : Icons.lightbulb_rounded,
                 size: 16,
                 color: color,
               ),

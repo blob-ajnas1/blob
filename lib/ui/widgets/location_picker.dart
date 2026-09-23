@@ -32,7 +32,7 @@ class LocationPicker extends StatelessWidget {
   /// Called with the full selection whenever any level changes. Values below a
   /// changed level arrive as null, so the caller's state stays consistent.
   final void Function({String? state, String? district, String? city})
-      onChanged;
+  onChanged;
 
   final String cityLabel;
   final bool requireCity;
@@ -346,7 +346,9 @@ class _SearchableSheetState extends State<_SearchableSheet> {
     final results = [...prefix, ...contains];
 
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: DraggableScrollableSheet(
         expand: false,
         initialChildSize: 0.75,

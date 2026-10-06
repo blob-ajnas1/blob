@@ -13,6 +13,10 @@ enum UserRole {
   vehicleRental,
   propertyOwner,
 
+  /// Village/town shop: keeps stock, takes customer orders, buys from
+  /// farmers and suppliers on the market.
+  shopkeeper,
+
   /// Education track. Deliberately a first-class role rather than reusing a
   /// marketplace role: a student must hold NO marketplace capability at all
   /// (see `Rbac._matrix`, where this role maps to an empty set), so no crop,
@@ -29,19 +33,22 @@ extension UserRoleX on UserRole {
     UserRole.landowner => 'Landowner',
     UserRole.broker => 'Broker',
     UserRole.laborer => 'Labourer',
-    UserRole.transport => 'Transport Goods',
+    // Shown as "Driver": the goods-transport role is the one that runs
+    // trips, routes and hauls. The id stays `transport` so existing
+    // accounts, vehicles and bookings carry over untouched.
+    UserRole.transport => 'Driver',
     UserRole.foreignInvestor => 'Foreign Investor',
     UserRole.globalExporter => 'Global Exporter',
     UserRole.taxiService => 'Taxi Service',
     UserRole.vehicleRental => 'Vehicle Rent',
     UserRole.propertyOwner => 'Property & Land Rental',
+    UserRole.shopkeeper => 'Shopkeeper',
     UserRole.student => 'Student',
     UserRole.admin => 'Administrator',
   };
 
   /// Short label used where space is tight (badges, pills).
   String get shortLabel => switch (this) {
-    UserRole.transport => 'Transport',
     UserRole.propertyOwner => 'Property',
     UserRole.vehicleRental => 'Vehicle Rent',
     _ => label,
@@ -55,6 +62,53 @@ extension UserRoleX on UserRole {
     UserRole.globalExporter,
     UserRole.taxiService,
     UserRole.vehicleRental,
+  }.contains(this);
+
+  /// Shown next to the role in the header switcher and its list.
+  String get emoji => switch (this) {
+    UserRole.landowner => '\u{1F33E}', // 🌾
+    UserRole.transport => '\u{1F69B}', // 🚛
+    UserRole.shopkeeper => '\u{1F6D2}', // 🛒
+    UserRole.buyer => '\u{1F9FA}', // 🧺
+    UserRole.laborer => '\u{1F9D1}\u{200D}\u{1F33E}', // 🧑‍🌾
+    UserRole.broker => '\u{1F91D}', // 🤝
+    UserRole.foreignInvestor => '\u{1F4C8}', // 📈
+    UserRole.globalExporter => '\u{1F30D}', // 🌍
+    UserRole.taxiService => '\u{1F695}', // 🚕
+    UserRole.vehicleRental => '\u{1F511}', // 🔑
+    UserRole.propertyOwner => '\u{1F3E1}', // 🏡
+    UserRole.student => '\u{1F393}', // 🎓
+    UserRole.admin => '\u{1F6E1}\u{FE0F}', // 🛡️
+  };
+
+  /// One line under the role name in the switcher list.
+  String get switcherHint => switch (this) {
+    UserRole.landowner => 'Plots, crops, labour and truck booking',
+    UserRole.transport => 'Trips, routes, active hauls and earnings',
+    UserRole.shopkeeper => 'Stock, customer orders, suppliers, payments',
+    UserRole.buyer => 'Buy from farmers and resell',
+    UserRole.laborer => 'Find farm and town work',
+    UserRole.broker => 'Facilitate deals for commission',
+    UserRole.foreignInvestor => 'Invest in farm projects',
+    UserRole.globalExporter => 'Buy and ship produce',
+    UserRole.taxiService => 'Run taxi rides',
+    UserRole.vehicleRental => 'Rent out vehicles',
+    UserRole.propertyOwner => 'Let land and buildings',
+    UserRole.student => 'Learning app',
+    UserRole.admin => 'Approve accounts',
+  };
+
+  /// Roles a member can add to their own account from the switcher with no
+  /// extra paperwork. Roles that need admin vetting (broker, exporter,
+  /// licensed taxi/rental operators) or company details still go through
+  /// the full signup form, so adding a role can never skip a review.
+  bool get selfAssignable => const {
+    UserRole.landowner,
+    UserRole.transport,
+    UserRole.shopkeeper,
+    UserRole.buyer,
+    UserRole.laborer,
+    UserRole.propertyOwner,
   }.contains(this);
 
   static UserRole fromId(String value) => UserRole.values.firstWhere(

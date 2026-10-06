@@ -20,6 +20,9 @@ class LocalDb {
   static const String dailyProgress = 'daily_progress';
   static const String activities = 'activities';
   static const String settings = 'settings';
+  static const String farmPlots = 'farm_plots';
+  static const String shopItems = 'shop_items';
+  static const String shopOrders = 'shop_orders';
 
   static const List<String> _boxes = [
     users,
@@ -36,6 +39,9 @@ class LocalDb {
     dailyProgress,
     activities,
     settings,
+    farmPlots,
+    shopItems,
+    shopOrders,
   ];
 
   Future<void> init() async {

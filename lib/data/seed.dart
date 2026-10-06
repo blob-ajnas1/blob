@@ -2,6 +2,7 @@ import '../core/utils/crop_images.dart';
 import 'local_db.dart';
 import 'models/app_user.dart';
 import 'models/enums.dart';
+import 'models/farm.dart';
 import 'models/job.dart';
 import 'edu_content.dart';
 import 'learning_content.dart';
@@ -10,6 +11,7 @@ import 'models/ledger.dart';
 import 'models/listing.dart';
 import 'models/property.dart';
 import 'models/role_subtype.dart';
+import 'models/shop.dart';
 import 'models/vehicle.dart';
 
 /// Seeds demo marketplace data on first launch so every role dashboard
@@ -29,7 +31,11 @@ class Seed {
   // v8: peer-to-peer vehicle rental. Existing installs have no member-listed
   // vehicles at all, so the Rent tab would open empty and read as broken
   // rather than as a new feature — the bump forces a re-seed.
-  static const _kSeeded = 'seed_v8';
+  // v9: multi-role accounts with a header role switcher. Ramesh Gowda now
+  // holds Landowner, Driver and Shopkeeper, and the new Landowner / Driver /
+  // Shopkeeper dashboards need plots, trips, shop stock and orders, so the
+  // bump forces a re-seed.
+  static const _kSeeded = 'seed_v9';
 
   static Future<void> ensure() async {
     final db = LocalDb.instance;
@@ -44,7 +50,11 @@ class Seed {
         countryCode: '+91',
         name: 'Ramesh Gowda',
         role: UserRole.landowner,
+        // Farms, drives his own pickup in the off-season and runs the family
+        // provision store — the three roles the header switcher demonstrates.
+        roles: [UserRole.landowner, UserRole.transport, UserRole.shopkeeper],
         district: 'Mandya',
+        city: 'Maddur',
         createdAt: now.subtract(const Duration(days: 90)),
       ),
       AppUser(
@@ -604,6 +614,19 @@ class Seed {
         ratePerDayPaise: 45000,
         district: 'Hassan',
       ),
+      // Ramesh's own pickup, used when he is in his Driver role.
+      Vehicle(
+        id: 'v_ramesh_pickup',
+        ownerId: 'u_landowner_1',
+        ownerName: 'Ramesh Gowda',
+        category: VehicleCategory.goods,
+        subtype: RoleSubtype.pickupLightCommercial,
+        vehicleType: 'Mahindra Bolero Maxi Truck',
+        registrationNumber: 'KA 11 B 6610',
+        capacityValue: 1.5,
+        ratePerKmPaise: 2400,
+        district: 'Mandya',
+      ),
       // ---- Peer listings: ordinary members lending their own vehicles ----
       // Seeded from a landowner and a labourer, not a rental account, so the
       // Rent tab demonstrates from first launch that these listings come from
@@ -901,9 +924,198 @@ class Seed {
       await db.put(LocalDb.ledger, e.id, e.toMap());
     }
 
+    await _seedRoleDashboards(db, now);
     await _seedLearning(db, now);
 
     await db.setSetting(_kSeeded, true);
+  }
+
+  /// Data behind the Landowner, Driver and Shopkeeper dashboards for the
+  /// multi-role demo account (Ramesh Gowda, Maddur, Mandya).
+  static Future<void> _seedRoleDashboards(LocalDb db, DateTime now) async {
+    const me = 'u_landowner_1';
+    DateTime ago(int d) => now.subtract(Duration(days: d));
+    DateTime ahead(int h) => now.add(Duration(hours: h));
+
+    // ---- Landowner: plots ----
+    final plots = <FarmPlot>[
+      FarmPlot(
+        id: 'plot_1',
+        ownerId: me,
+        name: 'Canal-side field',
+        acres: 3.5,
+        village: 'Maddur',
+        district: 'Mandya',
+        soil: 'Red loam',
+        irrigation: 'Canal',
+        crop: 'Sugarcane',
+        sownOn: ago(240),
+        cropDays: 330,
+        createdAt: ago(400),
+      ),
+      FarmPlot(
+        id: 'plot_2',
+        ownerId: me,
+        name: 'Survey 112/3',
+        acres: 2,
+        village: 'Maddur',
+        district: 'Mandya',
+        soil: 'Black clay',
+        irrigation: 'Borewell',
+        crop: 'Paddy',
+        sownOn: ago(98),
+        cropDays: 120,
+        createdAt: ago(380),
+      ),
+      FarmPlot(
+        id: 'plot_3',
+        ownerId: me,
+        name: 'Tank-bed plot',
+        acres: 1.25,
+        village: 'Malavalli',
+        district: 'Mandya',
+        soil: 'Sandy loam',
+        irrigation: 'Rain-fed',
+        createdAt: ago(200),
+      ),
+    ];
+    for (final p in plots) {
+      await db.put(LocalDb.farmPlots, p.id, p.toMap());
+    }
+
+    // ---- Driver: trips on Ramesh's pickup ----
+    VehicleBooking trip(
+      String id,
+      String requesterId,
+      String requesterName,
+      String pickup,
+      String drop,
+      double km,
+      DateTime when,
+      BookingStatus status,
+    ) => VehicleBooking(
+      id: id,
+      vehicleId: 'v_ramesh_pickup',
+      vehicleLabel: 'Mahindra Bolero Maxi Truck',
+      category: VehicleCategory.goods,
+      requesterId: requesterId,
+      requesterName: requesterName,
+      providerId: me,
+      pickup: pickup,
+      drop: drop,
+      distanceKm: km,
+      farePaise: (km * 2400).round(),
+      scheduledAt: when,
+      status: status,
+      createdAt: when.subtract(const Duration(hours: 20)),
+    );
+    final trips = <VehicleBooking>[
+      trip('t_1', 'u_buyer_1', 'Suresh Traders', 'Maddur', 'Mandya', 18,
+          ahead(5), BookingStatus.requested),
+      trip('t_2', 'u_landowner_2', 'Lakshmamma B', 'Malavalli', 'Mysuru', 52,
+          ahead(26), BookingStatus.requested),
+      trip('t_3', 'u_buyer_1', 'Suresh Traders', 'Pandavapura', 'Bengaluru',
+          110, ahead(50), BookingStatus.requested),
+      trip('t_4', 'u_property_1', 'Nanjundaswamy Estates', 'Maddur',
+          'Channapatna', 34, now.subtract(const Duration(minutes: 40)),
+          BookingStatus.enRoute),
+      trip('t_5', 'u_buyer_1', 'Suresh Traders', 'Mandya', 'Maddur', 18,
+          ahead(3), BookingStatus.confirmed),
+      trip('t_6', 'u_landowner_2', 'Lakshmamma B', 'Hassan', 'Mandya', 115,
+          ago(1), BookingStatus.delivered),
+      trip('t_7', 'u_buyer_1', 'Suresh Traders', 'Maddur', 'Ramanagara', 45,
+          ago(3), BookingStatus.delivered),
+      trip('t_8', 'u_property_1', 'Nanjundaswamy Estates', 'Krishnarajpet',
+          'Mandya', 41, ago(9), BookingStatus.delivered),
+    ];
+    for (final t in trips) {
+      await db.put(LocalDb.bookings, t.id, t.toMap());
+    }
+
+    // ---- Shopkeeper: Gowda Provision Stores ----
+    ShopItem item(String id, String name, String unit, double qty,
+            double reorder, int priceRupees, String supplier) =>
+        ShopItem(
+          id: id,
+          shopId: me,
+          name: name,
+          unit: unit,
+          quantity: qty,
+          reorderLevel: reorder,
+          pricePaise: priceRupees * 100,
+          supplier: supplier,
+          updatedAt: ago(1),
+        );
+    final stock = <ShopItem>[
+      item('si_1', 'Sona Masoori rice', 'kg', 140, 50, 58, 'Suresh Traders'),
+      item('si_2', 'Toor dal', 'kg', 12, 20, 145, 'Mandya APMC wholesale'),
+      item('si_3', 'Jaggery (Mandya)', 'kg', 65, 25, 62, 'Ramesh Gowda farm'),
+      item('si_4', 'Groundnut oil', 'litre', 0, 10, 185, 'Shree Oil Mills'),
+      item('si_5', 'Ragi flour', 'kg', 30, 15, 48, 'Suresh Traders'),
+      item('si_6', 'Sugar', 'kg', 8, 25, 44, 'Mandya APMC wholesale'),
+      item('si_7', 'Urea fertiliser', 'bag', 22, 10, 270, 'Krishi Seva Kendra'),
+      item('si_8', 'Tea powder', 'packet', 40, 12, 120, 'Shree Distributors'),
+    ];
+    for (final i in stock) {
+      await db.put(LocalDb.shopItems, i.id, i.toMap());
+    }
+
+    final orders = <ShopOrder>[
+      ShopOrder(
+        id: 'so_1',
+        shopId: me,
+        customerName: 'Kavitha M',
+        customerPhone: '+919845011221',
+        itemsSummary: 'Rice 10 kg, Toor dal 2 kg, Sugar 2 kg',
+        totalPaise: 96800,
+        createdAt: now.subtract(const Duration(minutes: 25)),
+      ),
+      ShopOrder(
+        id: 'so_2',
+        shopId: me,
+        customerName: 'Manjunath K',
+        customerPhone: '+919845011876',
+        itemsSummary: 'Urea 2 bags',
+        totalPaise: 54000,
+        status: ShopOrderStatus.packed,
+        createdAt: now.subtract(const Duration(hours: 2)),
+      ),
+      ShopOrder(
+        id: 'so_3',
+        shopId: me,
+        customerName: 'Shobha R',
+        customerPhone: '+919845012009',
+        itemsSummary: 'Ragi flour 5 kg, Jaggery 2 kg, Tea 1 pkt',
+        totalPaise: 48400,
+        status: ShopOrderStatus.delivered,
+        paid: true,
+        createdAt: now.subtract(const Duration(hours: 4)),
+      ),
+      ShopOrder(
+        id: 'so_4',
+        shopId: me,
+        customerName: 'Basavaraju',
+        customerPhone: '+919845013310',
+        itemsSummary: 'Rice 25 kg, Groundnut oil 2 L',
+        totalPaise: 182000,
+        status: ShopOrderStatus.delivered,
+        createdAt: ago(2),
+      ),
+      ShopOrder(
+        id: 'so_5',
+        shopId: me,
+        customerName: 'Geetha S',
+        customerPhone: '+919845014471',
+        itemsSummary: 'Sugar 5 kg, Tea 2 pkt',
+        totalPaise: 46000,
+        status: ShopOrderStatus.delivered,
+        paid: true,
+        createdAt: ago(1),
+      ),
+    ];
+    for (final o in orders) {
+      await db.put(LocalDb.shopOrders, o.id, o.toMap());
+    }
   }
 
   /// Seeds the learning platform: student profiles, a back-dated streak of

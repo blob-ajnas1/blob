@@ -178,6 +178,42 @@ class SessionController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ---------------- Roles on one account ----------------
+
+  /// Makes [role] the active role. The home dashboard, bottom tabs and
+  /// permissions all read `user.role`, so they swap in place on the next
+  /// frame; nothing is navigated. A role the account doesn't hold is
+  /// ignored rather than granted.
+  Future<void> switchRole(UserRole role) async {
+    final current = _user;
+    if (current == null || current.role == role) return;
+    if (!current.roles.contains(role)) return;
+    await updateUser(
+      current.copyWith(
+        role: role,
+        // A specialisation belongs to one role ("Heavy Truck" is a driver
+        // thing). Carrying it across would grant the old role's sub-type
+        // permissions inside the new one, so reset to the new role's default.
+        subtype: RoleSubtypeX.defaultFor(role),
+        clearSubtype: RoleSubtypeX.defaultFor(role) == null,
+      ),
+    );
+  }
+
+  /// Adds a self-serve role to the account and switches to it. Roles that
+  /// need an admin review are refused here; they go through the full form.
+  Future<bool> addRole(UserRole role) async {
+    final current = _user;
+    if (current == null || !role.selfAssignable) return false;
+    if (current.roles.contains(role)) {
+      await switchRole(role);
+      return true;
+    }
+    await updateUser(current.copyWith(roles: [...current.roles, role]));
+    await switchRole(role);
+    return true;
+  }
+
   /// Switches the active session to another registered account.
   Future<void> switchTo(AppUser user) => _persistSession(user);
 

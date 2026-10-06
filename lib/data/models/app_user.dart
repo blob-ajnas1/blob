@@ -9,7 +9,15 @@ class AppUser {
   final String phone; // full E.164, e.g. +919876543210
   final String countryCode; // e.g. +91
   final String name;
+
+  /// The ACTIVE role — the one the home screen, tabs and permissions use
+  /// right now. Switching role in the header changes only this field.
   final UserRole role;
+
+  /// Every role this account holds, in the order they were added. Always
+  /// contains [role]. Older accounts stored only `role`, so [fromMap]
+  /// back-fills this to `[role]`.
+  final List<UserRole> roles;
   final RoleSubtype?
   subtype; // role specialisation, null for single-shape roles
   final LaborerType? laborerType; // only for UserRole.laborer
@@ -33,12 +41,13 @@ class AppUser {
 
   final DateTime createdAt;
 
-  const AppUser({
+  AppUser({
     required this.id,
     required this.phone,
     required this.countryCode,
     required this.name,
     required this.role,
+    List<UserRole>? roles,
     required this.district,
     required this.createdAt,
     this.stateName,
@@ -51,7 +60,14 @@ class AppUser {
     this.verificationStatus = VerificationStatus.approved,
     this.freeJobPostsUsed = 0,
     this.category,
-  });
+  }) : roles = List.unmodifiable(
+         roles == null || roles.isEmpty
+             ? [role]
+             : (roles.contains(role) ? roles : [role, ...roles]),
+       );
+
+  /// True when the account has more than one role to switch between.
+  bool get hasMultipleRoles => roles.length > 1;
 
   bool get isApproved => verificationStatus == VerificationStatus.approved;
   bool get isPending => verificationStatus == VerificationStatus.pending;
@@ -71,6 +87,7 @@ class AppUser {
   AppUser copyWith({
     String? name,
     UserRole? role,
+    List<UserRole>? roles,
     RoleSubtype? subtype,
     LaborerType? laborerType,
     String? companyName,
@@ -90,6 +107,7 @@ class AppUser {
       countryCode: countryCode,
       name: name ?? this.name,
       role: role ?? this.role,
+      roles: roles ?? this.roles,
       // A plain `subtype ?? this.subtype` cannot express "set this back to
       // null", which switching to the student track needs: marketplace
       // specialisations have no meaning there and would otherwise linger.
@@ -114,6 +132,7 @@ class AppUser {
     'country_code': countryCode,
     'name': name,
     'role': role.name,
+    'roles': roles.map((r) => r.name).toList(),
     'subtype': subtype?.name,
     'laborer_type': laborerType?.name,
     'company_name': companyName,
@@ -134,6 +153,11 @@ class AppUser {
     countryCode: m['country_code'] as String? ?? '+91',
     name: m['name'] as String? ?? 'User',
     role: UserRoleX.fromId(m['role'] as String? ?? 'buyer'),
+    roles: (m['roles'] as List?)
+        ?.whereType<String>()
+        .map(UserRoleX.fromId)
+        .toSet()
+        .toList(),
     subtype: RoleSubtypeX.tryFromId(m['subtype'] as String?),
     laborerType: m['laborer_type'] == null
         ? null

@@ -5,11 +5,13 @@ import '../core/utils/money.dart';
 import '../data/local_db.dart';
 import '../data/models/app_user.dart';
 import '../data/models/enums.dart';
+import '../data/models/farm.dart';
 import '../data/models/job.dart';
 import '../data/models/ledger.dart';
 import '../data/models/listing.dart';
 import '../data/models/property.dart';
 import '../data/models/role_subtype.dart';
+import '../data/models/shop.dart';
 import '../data/models/vehicle.dart';
 import '../services/payment_gateway.dart';
 
@@ -842,6 +844,201 @@ class MarketplaceController extends ChangeNotifier {
       await clearPayment(e);
     }
   }
+
+  // ---------------- Landowner: plots ----------------
+
+  List<FarmPlot> plotsByOwner(String ownerId) {
+    final items = _db
+        .all(LocalDb.farmPlots)
+        .map(FarmPlot.fromMap)
+        .where((p) => p.ownerId == ownerId)
+        .toList();
+    items.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return items;
+  }
+
+  Future<FarmPlot> addPlot({
+    required AppUser owner,
+    required String name,
+    required double acres,
+    required String village,
+    required String soil,
+    required String irrigation,
+  }) async {
+    final plot = FarmPlot(
+      id: _uuid.v4(),
+      ownerId: owner.id,
+      name: name.trim(),
+      acres: acres,
+      village: village.trim(),
+      district: owner.district,
+      soil: soil,
+      irrigation: irrigation,
+      createdAt: DateTime.now(),
+    );
+    await _db.put(LocalDb.farmPlots, plot.id, plot.toMap());
+    notifyListeners();
+    return plot;
+  }
+
+  Future<void> sowPlot(FarmPlot plot, String crop, int cropDays) async {
+    final updated = plot.copyWith(
+      crop: crop,
+      sownOn: DateTime.now(),
+      cropDays: cropDays,
+    );
+    await _db.put(LocalDb.farmPlots, updated.id, updated.toMap());
+    notifyListeners();
+  }
+
+  Future<void> harvestPlot(FarmPlot plot) async {
+    final updated = plot.copyWith(clearCrop: true);
+    await _db.put(LocalDb.farmPlots, updated.id, updated.toMap());
+    notifyListeners();
+  }
+
+  /// Labourers looking for work in [district], for the landowner's
+  /// "labour available" card.
+  List<AppUser> laborersIn(String district) => users
+      .where(
+        (u) =>
+            u.roles.contains(UserRole.laborer) &&
+            u.district.toLowerCase() == district.toLowerCase(),
+      )
+      .toList();
+
+  // ---------------- Driver: trips ----------------
+
+  /// Goods trips nobody has accepted yet that this driver's vehicles could
+  /// take. Bookings are tied to a vehicle, so "available" means requested
+  /// against one of the driver's own vehicles.
+  List<VehicleBooking> tripRequestsFor(String driverId) =>
+      bookings
+          .where(
+            (b) =>
+                b.providerId == driverId &&
+                b.category == VehicleCategory.goods &&
+                b.status == BookingStatus.requested,
+          )
+          .toList()
+        ..sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
+
+  /// Accepted or moving hauls, soonest first.
+  List<VehicleBooking> activeHaulsFor(String driverId) =>
+      bookings
+          .where(
+            (b) =>
+                b.providerId == driverId &&
+                (b.status == BookingStatus.confirmed ||
+                    b.status == BookingStatus.enRoute),
+          )
+          .toList()
+        ..sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
+
+  List<VehicleBooking> completedTripsFor(String driverId) =>
+      bookings
+          .where(
+            (b) =>
+                b.providerId == driverId &&
+                b.status == BookingStatus.delivered,
+          )
+          .toList()
+        ..sort((a, b) => b.scheduledAt.compareTo(a.scheduledAt));
+
+  /// Fare total of delivered trips since [since] (inclusive).
+  int tripEarningsPaise(String driverId, {DateTime? since}) =>
+      completedTripsFor(driverId)
+          .where((b) => since == null || !b.scheduledAt.isBefore(since))
+          .fold(0, (sum, b) => sum + b.farePaise);
+
+  // ---------------- Shopkeeper: stock & orders ----------------
+
+  List<ShopItem> shopItems(String shopId) {
+    final items = _db
+        .all(LocalDb.shopItems)
+        .map(ShopItem.fromMap)
+        .where((i) => i.shopId == shopId)
+        .toList();
+    // Out of stock first, then low, then the rest alphabetically: the top of
+    // the list is always what needs reordering.
+    int rank(ShopItem i) => i.isOut ? 0 : (i.isLow ? 1 : 2);
+    items.sort((a, b) {
+      final r = rank(a).compareTo(rank(b));
+      return r != 0 ? r : a.name.compareTo(b.name);
+    });
+    return items;
+  }
+
+  Future<void> adjustStock(ShopItem item, double delta) async {
+    final q = (item.quantity + delta).clamp(0, double.infinity).toDouble();
+    final updated = item.copyWith(quantity: q);
+    await _db.put(LocalDb.shopItems, updated.id, updated.toMap());
+    notifyListeners();
+  }
+
+  Future<ShopItem> addShopItem({
+    required AppUser shop,
+    required String name,
+    required String unit,
+    required double quantity,
+    required double reorderLevel,
+    required int pricePaise,
+    required String supplier,
+  }) async {
+    final item = ShopItem(
+      id: _uuid.v4(),
+      shopId: shop.id,
+      name: name.trim(),
+      unit: unit,
+      quantity: quantity,
+      reorderLevel: reorderLevel,
+      pricePaise: pricePaise,
+      supplier: supplier.trim(),
+      updatedAt: DateTime.now(),
+    );
+    await _db.put(LocalDb.shopItems, item.id, item.toMap());
+    notifyListeners();
+    return item;
+  }
+
+  List<ShopOrder> shopOrders(String shopId) {
+    final items = _db
+        .all(LocalDb.shopOrders)
+        .map(ShopOrder.fromMap)
+        .where((o) => o.shopId == shopId)
+        .toList();
+    items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return items;
+  }
+
+  Future<void> advanceOrder(ShopOrder order) async {
+    final next = order.status.next;
+    if (next == null) return;
+    final updated = order.copyWith(status: next);
+    await _db.put(LocalDb.shopOrders, updated.id, updated.toMap());
+    notifyListeners();
+  }
+
+  Future<void> markOrderPaid(ShopOrder order) async {
+    if (order.paid) return;
+    final updated = order.copyWith(paid: true);
+    await _db.put(LocalDb.shopOrders, updated.id, updated.toMap());
+    notifyListeners();
+  }
+
+  /// Sales collected today (paid orders created today).
+  int shopSalesTodayPaise(String shopId) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return shopOrders(shopId)
+        .where((o) => o.paid && !o.createdAt.isBefore(today))
+        .fold(0, (s, o) => s + o.totalPaise);
+  }
+
+  /// Delivered-but-unpaid orders: money customers still owe the shop.
+  int shopDuesPaise(String shopId) => shopOrders(shopId)
+      .where((o) => !o.paid && o.status != ShopOrderStatus.cancelled)
+      .fold(0, (s, o) => s + o.totalPaise);
 
   // ---------------- Admin ----------------
 

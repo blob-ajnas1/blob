@@ -37,6 +37,14 @@ class Money {
 
   static double paiseToRupees(int paise) => paise / 100;
 
+  /// Launch period: BLOB is free to use for the first few months, so no job
+  /// posting fee is charged and no fee wording is shown anywhere.
+  ///
+  /// Flip to `true` to reinstate "2 free posts, then ₹50 each". The Razorpay
+  /// checkout, ledger rows and fee dialog all come back with it unchanged —
+  /// nothing else needs editing.
+  static const bool jobPostingFeesEnabled = false;
+
   /// ₹50 fee charged from the 3rd job posting onward.
   static const int jobPostingFeePaise = 5000;
 

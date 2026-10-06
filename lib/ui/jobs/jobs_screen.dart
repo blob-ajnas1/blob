@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/rbac/permissions.dart';
+import '../../core/utils/money.dart';
 import '../../state/marketplace_controller.dart';
 import '../../state/session_controller.dart';
 import '../dashboards/dashboard_parts.dart';
@@ -50,8 +51,12 @@ class JobsScreen extends StatelessWidget {
               : ListView(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                   children: [
-                    FreePostsBanner(remaining: market.freePostsRemaining(user)),
-                    const SizedBox(height: 16),
+                    if (Money.jobPostingFeesEnabled) ...[
+                      FreePostsBanner(
+                        remaining: market.freePostsRemaining(user),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     ...myJobs.map((j) => JobCard(job: j)),
                   ],
                 ),

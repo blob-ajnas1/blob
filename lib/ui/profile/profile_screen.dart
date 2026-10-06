@@ -185,13 +185,14 @@ class ProfileScreen extends StatelessWidget {
               label: 'Status',
               value: user.verificationStatus.label,
             ),
-            _Row(
-              icon: Icons.post_add,
-              label: 'Free posts left',
-              value:
-                  '${market.freePostsRemaining(user)} of '
-                  '${Money.freeJobPostLimit}',
-            ),
+            if (Money.jobPostingFeesEnabled)
+              _Row(
+                icon: Icons.post_add,
+                label: 'Free posts left',
+                value:
+                    '${market.freePostsRemaining(user)} of '
+                    '${Money.freeJobPostLimit}',
+              ),
             const SizedBox(height: 18),
             const SectionHeader('Settings'),
             _Tile(

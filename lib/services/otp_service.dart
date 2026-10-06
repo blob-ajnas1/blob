@@ -131,6 +131,84 @@ class SmsGatewayOtpProvider implements OtpProvider {
   }
 }
 
+/// Free OTP delivery through TextBee (https://textbee.dev).
+///
+/// TextBee turns an ordinary Android phone into an SMS gateway: codes leave
+/// from that phone's own SIM, so there is no per-message fee — only the SIM's
+/// normal SMS plan (unlimited on most Indian prepaid packs). TextBee's free
+/// account allows 50 SMS/day and 300/month, which covers a launch pilot.
+///
+/// Setup (≈2 minutes): sign up at textbee.dev, install its app on a spare
+/// Android phone with a SIM, scan the QR code from the dashboard, then copy
+/// the API key and build with
+///   --dart-define=TEXTBEE_API_KEY=xxxx
+/// The gateway phone must stay on, charged and online.
+class TextBeeOtpProvider implements OtpProvider {
+  TextBeeOtpProvider({
+    this.apiKey = const String.fromEnvironment('TEXTBEE_API_KEY'),
+    this.deviceId = const String.fromEnvironment('TEXTBEE_DEVICE_ID'),
+    this.baseUrl = const String.fromEnvironment(
+      'TEXTBEE_BASE_URL',
+      defaultValue: 'https://api.textbee.dev',
+    ),
+    http.Client? client,
+  }) : _client = client ?? http.Client();
+
+  final String apiKey;
+  final String deviceId;
+  final String baseUrl;
+  final http.Client _client;
+
+  bool get isConfigured => apiKey.isNotEmpty;
+
+  static String messageFor(String code) =>
+      '$code is your BLOB verification code. Valid for 10 minutes. '
+      'Do not share it with anyone.';
+
+  @override
+  Future<OtpSendResult> send(String phoneE164, String code) async {
+    try {
+      final response = await _client
+          .post(
+            Uri.parse('$baseUrl/api/v1/gateway/send-sms'),
+            headers: {'Content-Type': 'application/json', 'x-api-key': apiKey},
+            body: jsonEncode({
+              'recipients': [phoneE164],
+              'message': messageFor(code),
+              if (deviceId.isNotEmpty) 'deviceId': deviceId,
+            }),
+          )
+          .timeout(const Duration(seconds: 20));
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return OtpSendResult(
+          success: true,
+          message: 'Verification code sent by SMS to $phoneE164',
+        );
+      }
+      if (kDebugMode) {
+        debugPrint(
+          '[BLOB OTP] TextBee ${response.statusCode}: ${response.body}',
+        );
+      }
+      // 401/403: bad key. 429 / quota: daily free limit used up.
+      return OtpSendResult(
+        success: false,
+        message: response.statusCode == 429
+            ? 'Too many verification requests today. Please try again later.'
+            : 'Could not send the SMS. Please try again in a moment.',
+      );
+    } catch (_) {
+      return const OtpSendResult(
+        success: false,
+        message:
+            'Network problem while sending the SMS. Check your '
+            'connection and try again.',
+      );
+    }
+  }
+}
+
 class _OtpRecord {
   final String code;
   final DateTime expiresAt;
@@ -146,9 +224,12 @@ class OtpService {
   OtpService({OtpProvider? provider})
     : _provider = provider ?? _defaultProvider();
 
-  /// Uses the real SMS gateway when build-time credentials were supplied,
-  /// otherwise falls back to the dev provider so the app stays testable.
+  /// Picks the first SMS route with build-time credentials: TextBee (free,
+  /// own SIM) first, then a paid HTTP gateway, otherwise the dev provider
+  /// that shows the code on screen so the app stays testable.
   static OtpProvider _defaultProvider() {
+    final textBee = TextBeeOtpProvider();
+    if (textBee.isConfigured) return textBee;
     final gateway = SmsGatewayOtpProvider();
     if (gateway.isConfigured) return gateway;
     return DevOtpProvider();
@@ -157,7 +238,7 @@ class OtpService {
   final OtpProvider _provider;
 
   /// True when OTPs are delivered as real SMS rather than shown on screen.
-  bool get usesRealSms => _provider is SmsGatewayOtpProvider;
+  bool get usesRealSms => _provider is! DevOtpProvider;
   final Random _random = Random.secure();
 
   final Map<String, _OtpRecord> _active = {};

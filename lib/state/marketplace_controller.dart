@@ -289,7 +289,8 @@ class MarketplaceController extends ChangeNotifier {
 
   /// First 2 posts per user are free; ₹50 from the 3rd onward.
   int postingFeeFor(AppUser user) =>
-      user.freeJobPostsUsed < Money.freeJobPostLimit
+      !Money.jobPostingFeesEnabled ||
+          user.freeJobPostsUsed < Money.freeJobPostLimit
       ? 0
       : Money.jobPostingFeePaise;
 
@@ -374,7 +375,7 @@ class MarketplaceController extends ChangeNotifier {
     return JobPostOutcome(
       success: true,
       message: fee == 0
-          ? 'Job posted free'
+          ? 'Job posted'
           : _gateway.mode == PaymentMode.demo
           ? 'Job posted · demo payment, no money taken'
           : 'Job posted · ${Money.format(fee)} paid',

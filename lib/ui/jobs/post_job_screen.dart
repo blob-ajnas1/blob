@@ -104,7 +104,12 @@ class _PostJobScreenState extends State<PostJobScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (fee == 0)
+                if (!Money.jobPostingFeesEnabled)
+                  const InfoBanner(
+                    icon: Icons.celebration_outlined,
+                    message: 'Posting jobs is free during our launch period.',
+                  )
+                else if (fee == 0)
                   InfoBanner(
                     icon: Icons.card_giftcard,
                     message:
@@ -264,7 +269,7 @@ class _PostJobScreenState extends State<PostJobScreen> {
                         )
                       : Text(
                           fee == 0
-                              ? 'Post Job (Free)'
+                              ? 'Post Job'
                               : 'Pay ${Money.format(fee)} & Post',
                         ),
                 ),

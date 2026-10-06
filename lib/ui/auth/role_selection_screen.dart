@@ -79,7 +79,7 @@ enum RoleSelectionMode {
   register,
 
   /// An existing account is being converted to the marketplace track, so the
-  /// user record is updated in place and their id, phone, Aadhaar
+  /// user record is updated in place and their id, phone,
   /// verification, points, streak and history are all preserved.
   switchExisting,
 }
@@ -381,7 +381,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   /// Converts the signed-in account to the marketplace track in place.
   ///
-  /// Updates rather than re-registers, so the id, phone, Aadhaar verification,
+  /// Updates rather than re-registers, so the id, phone,
   /// points, streak and history all survive the switch. Pops `true` so the
   /// caller knows to rebuild from the track boundary.
   Future<void> _convertExisting(SessionController session) async {

@@ -14,7 +14,6 @@ import 'package:blob/data/models/learning.dart';
 import 'package:blob/data/models/role_subtype.dart';
 import 'package:blob/data/models/vehicle.dart';
 import 'package:blob/data/task_content_pack.dart';
-import 'package:blob/services/aadhaar_service.dart';
 import 'package:blob/ui/auth/student_details_screen.dart';
 import 'package:blob/ui/shell/track_router.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +33,12 @@ void main() {
 
     test('first two posts are free', () {
       expect(Money.freeJobPostLimit, 2);
+    });
+
+    test('launch period: job posting is free, fees switched off', () {
+      // Flipping this back on is a deliberate business decision; this test
+      // makes sure it can't happen by accident during the free period.
+      expect(Money.jobPostingFeesEnabled, isFalse);
     });
 
     test('broker commission is 2.5 percent', () {
@@ -334,73 +339,6 @@ void main() {
           expect(value, isNot(key), reason: 'missing ${lang.code}/$key');
         }
       }
-    });
-  });
-
-  group('Aadhaar verification', () {
-    test('accepts real-format numbers that satisfy the Verhoeff checksum', () {
-      // Verified against an independent implementation of the UIDAI
-      // Verhoeff algorithm, not hand-picked to fit the code.
-      expect(AadhaarService.isValidNumber('234123412346'), isTrue);
-      expect(AadhaarService.isValidNumber('499118665246'), isTrue);
-      expect(AadhaarService.isValidNumber('999999990019'), isTrue);
-    });
-
-    test('rejects a transposed pair of digits', () {
-      // The whole point of a Verhoeff check over a naive length check:
-      // swapping two adjacent digits must fail.
-      expect(AadhaarService.isValidNumber('234123412346'), isTrue);
-      expect(AadhaarService.isValidNumber('234132412346'), isFalse);
-    });
-
-    test('rejects wrong length, non-digits and reserved leading digits', () {
-      expect(AadhaarService.isValidNumber('23412341234'), isFalse); // 11
-      expect(AadhaarService.isValidNumber('2341234123456'), isFalse); // 13
-      expect(AadhaarService.isValidNumber('23412341234a'), isFalse);
-      expect(AadhaarService.isValidNumber(''), isFalse);
-      // UIDAI never issues a number starting 0 or 1.
-      expect(AadhaarService.isValidNumber('012345678901'), isFalse);
-      expect(AadhaarService.isValidNumber('123456789010'), isFalse);
-    });
-
-    test('normalises spaced and hyphenated input', () {
-      expect(AadhaarService.normalise('2341 2341 2346'), '234123412346');
-      expect(AadhaarService.normalise('2341-2341-2346'), '234123412346');
-      expect(AadhaarService.isValidNumber('2341 2341 2346'), isTrue);
-    });
-
-    test('masking never exposes more than the last four digits', () {
-      expect(AadhaarService.mask('234123412346'), 'XXXX XXXX 2346');
-      expect(AadhaarService.mask('2341 2341 2346'), 'XXXX XXXX 2346');
-      // The first eight digits must not survive anywhere in the output.
-      expect(AadhaarService.mask('234123412346'), isNot(contains('2341234')));
-    });
-
-    test('last4 is the only fragment we ever persist', () {
-      expect(AadhaarService.last4('234123412346'), '2346');
-      expect(AadhaarService.last4('12'), '');
-    });
-
-    test('a valid number issues an OTP that verifies exactly once', () async {
-      final service = AadhaarService();
-      const number = '234123412346';
-
-      final sent = await service.requestOtp(number);
-      expect(sent.success, isTrue);
-      final code = sent.devCode;
-      expect(code, isNotNull);
-
-      expect(service.verify(number, '000000').success, isFalse);
-      expect(service.verify(number, code!).success, isTrue);
-      // Consumed: replaying the same code must not re-verify.
-      expect(service.verify(number, code).success, isFalse);
-    });
-
-    test('an invalid number never reaches the OTP provider', () async {
-      final service = AadhaarService();
-      final sent = await service.requestOtp('111111111111');
-      expect(sent.success, isFalse);
-      expect(sent.devCode, isNull);
     });
   });
 

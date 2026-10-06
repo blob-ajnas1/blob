@@ -20,7 +20,7 @@ import 'student_details_screen.dart';
 /// an explicit, confirmed account change reached from Profile.
 ///
 /// Switching *converts the existing account* rather than creating a second one,
-/// so the user keeps their id, phone, Aadhaar verification, points, streak and
+/// so the user keeps their id, phone, points, streak and
 /// history. Only the track-specific parts change:
 ///
 ///  * -> Student: role becomes [UserRole.student] (no marketplace capability

@@ -172,13 +172,6 @@ class EduProfileScreen extends StatelessWidget {
                     title: 'Phone',
                     subtitle: '${user.countryCode} ${user.phone}',
                   ),
-                  if (user.aadhaarLast4 != null)
-                    _Tile(
-                      icon: Icons.verified_user_outlined,
-                      title: 'Aadhaar',
-                      subtitle:
-                          'Verified \u00b7 xxxx xxxx ${user.aadhaarLast4}',
-                    ),
                   _Tile(
                     icon: Icons.language,
                     title: 'Language',

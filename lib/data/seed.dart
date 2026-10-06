@@ -272,8 +272,6 @@ class Seed {
         role: UserRole.student,
         district: 'Mandya',
         category: UserCategory.student,
-        aadhaarLast4: '4821',
-        aadhaarVerified: true,
         createdAt: now.subtract(const Duration(days: 30)),
       ),
       AppUser(
@@ -284,8 +282,6 @@ class Seed {
         role: UserRole.student,
         district: 'Belagavi',
         category: UserCategory.student,
-        aadhaarLast4: '9037',
-        aadhaarVerified: true,
         createdAt: now.subtract(const Duration(days: 26)),
       ),
       AppUser(
@@ -296,8 +292,6 @@ class Seed {
         role: UserRole.student,
         district: 'Mysuru',
         category: UserCategory.student,
-        aadhaarLast4: '2765',
-        aadhaarVerified: true,
         createdAt: now.subtract(const Duration(days: 21)),
       ),
       AppUser(
@@ -310,8 +304,6 @@ class Seed {
         laborerType: LaborerType.singleWorker,
         district: 'Hassan',
         category: UserCategory.jobSeeker,
-        aadhaarLast4: '5510',
-        aadhaarVerified: true,
         createdAt: now.subtract(const Duration(days: 18)),
       ),
       AppUser(
@@ -324,8 +316,6 @@ class Seed {
         laborerType: LaborerType.groupWork,
         district: 'Tumakuru',
         category: UserCategory.jobSeeker,
-        aadhaarLast4: '1194',
-        aadhaarVerified: true,
         createdAt: now.subtract(const Duration(days: 12)),
       ),
     ];

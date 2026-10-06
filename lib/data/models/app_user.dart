@@ -31,10 +31,6 @@ class AppUser {
   /// learning module, and for marketplace-only roles.
   final UserCategory? category;
 
-  /// Last four Aadhaar digits only — never the full number. UIDAI's
-  /// data-minimisation guidance forbids storing the complete value.
-  final String? aadhaarLast4;
-  final bool aadhaarVerified;
   final DateTime createdAt;
 
   const AppUser({
@@ -55,8 +51,6 @@ class AppUser {
     this.verificationStatus = VerificationStatus.approved,
     this.freeJobPostsUsed = 0,
     this.category,
-    this.aadhaarLast4,
-    this.aadhaarVerified = false,
   });
 
   bool get isApproved => verificationStatus == VerificationStatus.approved;
@@ -88,8 +82,6 @@ class AppUser {
     VerificationStatus? verificationStatus,
     int? freeJobPostsUsed,
     UserCategory? category,
-    String? aadhaarLast4,
-    bool? aadhaarVerified,
     bool clearSubtype = false,
   }) {
     return AppUser(
@@ -112,8 +104,6 @@ class AppUser {
       verificationStatus: verificationStatus ?? this.verificationStatus,
       freeJobPostsUsed: freeJobPostsUsed ?? this.freeJobPostsUsed,
       category: category ?? this.category,
-      aadhaarLast4: aadhaarLast4 ?? this.aadhaarLast4,
-      aadhaarVerified: aadhaarVerified ?? this.aadhaarVerified,
       createdAt: createdAt,
     );
   }
@@ -135,8 +125,6 @@ class AppUser {
     'verification_status': verificationStatus.name,
     'free_job_posts_used': freeJobPostsUsed,
     'category': category?.name,
-    'aadhaar_last4': aadhaarLast4,
-    'aadhaar_verified': aadhaarVerified,
     'created_at': createdAt.toIso8601String(),
   };
 
@@ -161,8 +149,6 @@ class AppUser {
     ),
     freeJobPostsUsed: (m['free_job_posts_used'] as num?)?.toInt() ?? 0,
     category: UserCategoryX.tryFromId(m['category'] as String?),
-    aadhaarLast4: m['aadhaar_last4'] as String?,
-    aadhaarVerified: m['aadhaar_verified'] as bool? ?? false,
     createdAt:
         DateTime.tryParse(m['created_at'] as String? ?? '') ?? DateTime.now(),
   );

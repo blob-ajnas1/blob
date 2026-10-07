@@ -32,6 +32,11 @@ const kRoleMeta = <RoleMeta>[
     'Buy from farmers, resell to exporters, hire crews',
   ),
   RoleMeta(
+    UserRole.shopkeeper,
+    Icons.store_mall_directory,
+    'Run your shop: stock, customer orders and payments',
+  ),
+  RoleMeta(
     UserRole.laborer,
     Icons.engineering,
     'Find work — alone or as a group',

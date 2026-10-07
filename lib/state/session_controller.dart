@@ -172,10 +172,13 @@ class SessionController extends ChangeNotifier {
     }
   }
 
+  /// Applies the change on screen first, then saves. Waiting for the disk
+  /// write before notifying made the role switcher feel laggy on low-end
+  /// phones; the write is local Hive, so it does not fail in practice.
   Future<void> updateUser(AppUser updated) async {
-    await _db.put(LocalDb.users, updated.id, updated.toMap());
     _user = updated;
     notifyListeners();
+    await _db.put(LocalDb.users, updated.id, updated.toMap());
   }
 
   // ---------------- Roles on one account ----------------

@@ -8,7 +8,6 @@ import '../../data/models/enums.dart';
 import '../../state/marketplace_controller.dart';
 import '../../state/session_controller.dart';
 import '../admin/admin_screen.dart';
-import '../investors/investor_directory_screen.dart';
 import '../jobs/post_job_screen.dart';
 import '../market/create_listing_screen.dart';
 import '../market/market_screen.dart';
@@ -20,6 +19,7 @@ import '../transport/rental_hub_screen.dart';
 import '../transport/transport_booking_screen.dart';
 import '../widgets/common.dart';
 import 'dashboard_parts.dart';
+import 'role_dashboards.dart';
 
 /// Single entry point that renders the right dashboard for the user's role.
 class RoleHome extends StatelessWidget {
@@ -56,10 +56,28 @@ class RoleHome extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
               ],
-              // The daily-challenge card was removed with the Learn tab: the
-              // education track is now a separate app, so learning content no
-              // longer appears on a marketplace dashboard.
-              ..._bodyFor(context, user),
+              // Swaps the whole body when the active role changes, with a
+              // short cross-fade so the user sees the page change under the
+              // switcher rather than wondering whether the tap registered.
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 260),
+                switchInCurve: Curves.easeOut,
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween(
+                      begin: const Offset(0, 0.02),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                ),
+                child: Column(
+                  key: ValueKey(user.role),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: _bodyFor(context, user),
+                ),
+              ),
             ],
           ),
         ),
@@ -79,11 +97,12 @@ class RoleHome extends StatelessWidget {
 
   List<Widget> _roleBody(BuildContext context, AppUser user) {
     return switch (user.role) {
-      UserRole.landowner => _landowner(context, user),
+      UserRole.landowner => [LandownerDashboard(user: user)],
+      UserRole.shopkeeper => [ShopkeeperDashboard(user: user)],
       UserRole.buyer => _buyer(context, user),
       UserRole.laborer => _laborer(context, user),
       UserRole.broker => _broker(context, user),
-      UserRole.transport => _transport(context, user),
+      UserRole.transport => [DriverDashboard(user: user)],
       UserRole.foreignInvestor => _investor(context, user),
       UserRole.globalExporter => _exporter(context, user),
       UserRole.taxiService => _taxi(context, user),
@@ -110,85 +129,6 @@ class RoleHome extends StatelessWidget {
             'Your account uses the student app. Reopen the app to continue, '
             'or change this from Switch account type in your profile.',
       ),
-    ];
-  }
-
-  // ---------------- Landowner ----------------
-
-  List<Widget> _landowner(BuildContext context, AppUser user) {
-    final market = context.watch<MarketplaceController>();
-    final myListings = market.listingsByOwner(user.id);
-    final myJobs = market.jobsByPoster(user.id);
-
-    return [
-      QuickActionsGrid(
-        actions: [
-          ActionTile(
-            icon: Icons.add_box_outlined,
-            label: 'Sell Crops',
-            onTap: () => _push(context, const CreateListingScreen()),
-          ),
-          ActionTile(
-            icon: Icons.groups_outlined,
-            label: 'Hire Labour',
-            onTap: () => _push(context, const PostJobScreen()),
-          ),
-          ActionTile(
-            icon: Icons.local_shipping_outlined,
-            label: 'Transport',
-            onTap: () => _push(context, const TransportBookingScreen()),
-          ),
-          ActionTile(
-            icon: Icons.trending_up,
-            label: 'Investors',
-            onTap: () => _push(context, const InvestorDirectoryScreen()),
-          ),
-          ActionTile(
-            icon: Icons.agriculture_outlined,
-            label: 'Lease Land',
-            onTap: () => _push(context, const PropertyMarketScreen()),
-          ),
-          ActionTile(
-            icon: Icons.local_taxi_outlined,
-            label: 'Book Ride',
-            onTap: () => _push(context, const TransportBookingScreen.taxi()),
-          ),
-          // No rental tile here: every dashboard already ends with the
-          // Rent / Lend card, and a second route to the same screen just
-          // crowds the grid.
-          ActionTile(
-            icon: Icons.account_balance_wallet_outlined,
-            label: 'Payments',
-            onTap: () => _push(context, const PaymentsScreen()),
-          ),
-        ],
-      ),
-      const SizedBox(height: 22),
-      SectionHeader(
-        'My Listings',
-        actionLabel: myListings.isEmpty ? null : 'Add new',
-        onAction: () => _push(context, const CreateListingScreen()),
-      ),
-      if (myListings.isEmpty)
-        EmptyCard(
-          icon: Icons.grass,
-          message: 'You have not listed any crops yet.',
-          actionLabel: 'List your first crop',
-          onAction: () => _push(context, const CreateListingScreen()),
-        )
-      else
-        MyListingsStrip(listings: myListings.take(6).toList()),
-      const SizedBox(height: 22),
-      const SectionHeader('My Job Posts'),
-      if (myJobs.isEmpty)
-        EmptyCard(
-          icon: Icons.work_outline,
-          message: 'No jobs posted. Your first 2 posts are free.',
-          actionLabel: 'Post a job',
-          onAction: () => _push(context, const PostJobScreen()),
-        )
-      else
-        ...myJobs.take(3).map((j) => JobCard(job: j)),
     ];
   }
 
@@ -311,65 +251,6 @@ class RoleHome extends StatelessWidget {
         ...openDeals
             .take(5)
             .map((l) => ListingCard(listing: l, brokerMode: true)),
-    ];
-  }
-
-  // ---------------- Transport ----------------
-
-  List<Widget> _transport(BuildContext context, AppUser user) {
-    final market = context.watch<MarketplaceController>();
-    final fleet = market.vehiclesByOwner(user.id);
-    final jobs = market.bookingsForUser(user.id);
-
-    return [
-      QuickActionsGrid(
-        actions: [
-          ActionTile(
-            icon: Icons.add_road,
-            label: 'Add Vehicle',
-            onTap: () => _push(context, const FleetScreen()),
-          ),
-          ActionTile(
-            icon: Icons.inventory_2_outlined,
-            label: 'Goods Jobs',
-            onTap: () => _push(context, const FleetScreen()),
-          ),
-          ActionTile(
-            icon: Icons.storefront_outlined,
-            label: 'Market',
-            onTap: () => _push(context, const MarketScreen()),
-          ),
-          ActionTile(
-            icon: Icons.account_balance_wallet_outlined,
-            label: 'Earnings',
-            onTap: () => _push(context, const PaymentsScreen()),
-          ),
-        ],
-      ),
-      const SizedBox(height: 22),
-      SectionHeader(
-        'My Fleet',
-        actionLabel: 'Manage',
-        onAction: () => _push(context, const FleetScreen()),
-      ),
-      if (fleet.isEmpty)
-        EmptyCard(
-          icon: Icons.local_shipping_outlined,
-          message: 'Add your first vehicle to start receiving bookings.',
-          actionLabel: 'Add vehicle',
-          onAction: () => _push(context, const FleetScreen()),
-        )
-      else
-        ...fleet.take(4).map((v) => VehicleCard(vehicle: v)),
-      const SizedBox(height: 22),
-      const SectionHeader('Incoming Bookings'),
-      if (jobs.isEmpty)
-        const EmptyCard(
-          icon: Icons.event_note_outlined,
-          message: 'No bookings yet.',
-        )
-      else
-        ...jobs.take(4).map((b) => BookingCard(booking: b, providerView: true)),
     ];
   }
 

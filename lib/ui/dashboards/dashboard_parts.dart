@@ -19,6 +19,7 @@ import '../jobs/job_detail_screen.dart';
 import '../widgets/brand.dart';
 import '../widgets/common.dart';
 import '../widgets/place_map.dart';
+import 'role_switcher.dart';
 import '../../core/utils/crop_images.dart';
 
 final _dateFmt = DateFormat('d MMM');
@@ -36,39 +37,20 @@ class HomeTopBar extends StatelessWidget {
       child: Row(
         children: [
           const BlobMark(size: 34),
-          const SizedBox(width: 9),
-          // Two-line wordmark keeps the bar compact on narrow phones.
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'BLOB',
-                  style: TextStyle(
-                    fontSize: 17,
-                    height: 1.05,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.2,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                Text(
-                  'Agri Market',
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    height: 1.15,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
+          const SizedBox(width: 10),
+          // The active role replaces the wordmark: it is the one thing on the
+          // bar the user acts on, so it gets the prominent slot.
+          Expanded(
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: ActiveRoleButton(user: user),
             ),
           ),
+          const SizedBox(width: 8),
           // The header location doubles as the shortcut to "where am I on the
           // map", so the pin and the name are one tap target.
           ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 124),
+            constraints: const BoxConstraints(maxWidth: 96),
             child: PlaceLink(
               name: user.city?.trim().isNotEmpty == true
                   ? user.city!
@@ -167,6 +149,7 @@ class DashboardHeader extends StatelessWidget {
     final session = context.watch<SessionController>();
     final isPayer =
         user.role == UserRole.buyer ||
+        user.role == UserRole.shopkeeper ||
         user.role == UserRole.globalExporter ||
         user.role == UserRole.foreignInvestor;
 

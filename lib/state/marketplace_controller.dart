@@ -939,8 +939,7 @@ class MarketplaceController extends ChangeNotifier {
       bookings
           .where(
             (b) =>
-                b.providerId == driverId &&
-                b.status == BookingStatus.delivered,
+                b.providerId == driverId && b.status == BookingStatus.delivered,
           )
           .toList()
         ..sort((a, b) => b.scheduledAt.compareTo(a.scheduledAt));

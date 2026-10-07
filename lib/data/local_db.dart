@@ -53,6 +53,18 @@ class LocalDb {
     }
   }
 
+  /// Opens the same boxes from a plain directory instead of the platform
+  /// app-data folder. Tests use this with a temp dir, since `initFlutter`
+  /// needs a device path provider that a test host does not have.
+  Future<void> initAt(String path) async {
+    Hive.init(path);
+    for (final name in _boxes) {
+      if (!Hive.isBoxOpen(name)) {
+        await Hive.openBox(name);
+      }
+    }
+  }
+
   Box box(String name) => Hive.box(name);
 
   List<Map<dynamic, dynamic>> all(String boxName) => box(

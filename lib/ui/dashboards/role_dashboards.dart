@@ -461,18 +461,20 @@ class _PlotCard extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 10),
+            const SizedBox(height: 4),
+            // Secondary action: a compact text button so the plot's details,
+            // not the button, are what the eye lands on.
             Align(
               alignment: AlignmentDirectional.centerEnd,
               child: plot.isFallow
-                  ? OutlinedButton.icon(
+                  ? TextButton.icon(
                       icon: const Icon(Icons.grass, size: 18),
                       label: const Text('Sow crop'),
                       onPressed: () => _showSow(context, plot),
                     )
-                  : OutlinedButton.icon(
+                  : TextButton.icon(
                       icon: const Icon(Icons.agriculture, size: 18),
-                      label: Text(ready ? 'Mark harvested' : 'Harvested early'),
+                      label: Text(ready ? 'Mark harvested' : 'Harvested'),
                       onPressed: () async {
                         await market.harvestPlot(plot);
                         if (context.mounted) {

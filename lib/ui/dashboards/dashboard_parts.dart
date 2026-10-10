@@ -147,19 +147,44 @@ class DashboardHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final market = context.watch<MarketplaceController>();
     final session = context.watch<SessionController>();
-    final isPayer =
-        user.role == UserRole.buyer ||
-        user.role == UserRole.shopkeeper ||
-        user.role == UserRole.globalExporter ||
-        user.role == UserRole.foreignInvestor;
-
-    // Landowners both earn and spend, so show what actually landed.
-    final primaryPaise = isPayer
-        ? market.clearedOutgoingPaise(user.id)
-        : market.clearedIncomingPaise(user.id);
-    final secondaryPaise = isPayer
-        ? market.pendingOutgoingPaise(user.id)
-        : market.pendingIncomingPaise(user.id);
+    // The rings follow the ACTIVE role. One account can drive, farm and run
+    // a shop; showing the whole account's ledger under every role would put
+    // the farm's crop income on the driver's screen.
+    final (
+      primaryLabel,
+      primaryPaise,
+      secondaryLabel,
+      secondaryPaise,
+    ) = switch (user.role) {
+      UserRole.transport => (
+        'Earned',
+        market.tripEarningsPaise(user.id),
+        'On trips',
+        market.activeHaulsFor(user.id).fold(0, (s, b) => s + b.farePaise),
+      ),
+      UserRole.shopkeeper => (
+        'Collected',
+        market
+            .shopOrders(user.id)
+            .where((o) => o.paid)
+            .fold(0, (s, o) => s + o.totalPaise),
+        'Owed',
+        market.shopDuesPaise(user.id),
+      ),
+      UserRole.buyer || UserRole.globalExporter || UserRole.foreignInvestor => (
+        'Paid',
+        market.clearedOutgoingPaise(user.id),
+        'To Pay',
+        market.pendingOutgoingPaise(user.id),
+      ),
+      // Landowners both earn and spend, so show what actually landed.
+      _ => (
+        'Cleared',
+        market.clearedIncomingPaise(user.id),
+        'Pending',
+        market.pendingIncomingPaise(user.id),
+      ),
+    };
 
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 18, 14, 18),
@@ -207,13 +232,10 @@ class DashboardHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          _StatRing(
-            label: isPayer ? 'Paid' : 'Cleared',
-            amountPaise: primaryPaise,
-          ),
+          _StatRing(label: primaryLabel, amountPaise: primaryPaise),
           const SizedBox(width: 8),
           _StatRing(
-            label: isPayer ? 'To Pay' : 'Pending',
+            label: secondaryLabel,
             amountPaise: secondaryPaise,
             amountColor: AppColors.pending,
           ),
@@ -248,7 +270,9 @@ class _RolePill extends StatelessWidget {
           const SizedBox(width: 4),
           Flexible(
             child: Text(
-              user.role.shortLabel.toUpperCase(),
+              // The role itself is in the top-bar switcher; repeating it here
+              // was noise. Verification is what this pill is for.
+              approved ? 'VERIFIED' : 'PENDING APPROVAL',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(

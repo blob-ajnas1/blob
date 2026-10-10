@@ -240,12 +240,14 @@ void main() {
       final session = await pumpHome(tester);
       await tester.tap(find.byKey(const Key('active-role-button')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('role-tile-transport')));
+      // The tile's onTap saves to Hive. Dispatching the tap on the real
+      // clock lets that save finish; under the fake clock it would hang and
+      // block every later write in this file.
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(const Key('role-tile-transport')));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
       await tester.pumpAndSettle();
-      // Let the background save finish so the next test starts clean.
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 50)),
-      );
 
       expect(session.user!.role, UserRole.transport);
       expect(find.byKey(const Key('dashboard-driver')), findsOneWidget);

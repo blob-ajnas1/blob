@@ -9,6 +9,7 @@ import 'package:blob/state/session_controller.dart';
 import 'package:blob/ui/dashboards/role_home.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
@@ -31,7 +32,27 @@ Future<void> diagnoseWidget(
         : text.contains('multiple exceptions')
         ? 'multiple exceptions'
         : 'other framework error';
-    debugPrintSynchronously('::error title=Cloud widget test::$name: $phase ($category)');
+    final chain = <String>[];
+    final information = details.informationCollector?.call();
+    if (information != null) {
+      for (final node in information.whereType<DiagnosticsDebugCreator>()) {
+        final creator = node.value;
+        if (creator is DebugCreator) {
+          chain.add(creator.element.widget.runtimeType.toString());
+          creator.element.visitAncestorElements((element) {
+            chain.add(element.widget.runtimeType.toString());
+            return chain.length < 18;
+          });
+        }
+      }
+    }
+    final overflow = RegExp(r'overflowed by ([0-9.]+) pixels on the ([a-z]+)')
+        .firstMatch(text);
+    final size = overflow == null ? '' : ' ${overflow[1]}px ${overflow[2]}';
+    debugPrintSynchronously(
+      '::error title=Cloud widget test::$name: $phase ($category$size) ${chain.join(" > ")}',
+      wrapWidth: 10000,
+    );
     previous?.call(details);
   };
   try {

@@ -46,10 +46,12 @@ void main() {
       await session.switchTo(user);
     });
     addTearDown(session.dispose);
-    tester.view.physicalSize = const Size(1080, 2400);
-    // The existing AdminSummary tiles overflow with the test-only Ahem font
-    // at narrower widths. The cloud card itself is tested at 320 px below.
-    tester.view.devicePixelRatio = 2.0;
+    // An existing admin tile overflows by 9.1 px with Ahem at 1080/2.6.
+    // Widen only admin dashboards slightly; the card is also tested at 320 px.
+    tester.view.physicalSize = role == UserRole.admin
+        ? const Size(1184, 2400)
+        : const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.6;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
       MultiProvider(

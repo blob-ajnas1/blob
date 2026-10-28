@@ -7,10 +7,44 @@ import 'package:blob/services/supabase_service.dart';
 import 'package:blob/state/marketplace_controller.dart';
 import 'package:blob/state/session_controller.dart';
 import 'package:blob/ui/dashboards/role_home.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
+
+// Temporary CI diagnostics report a known phase and error category only.
+// Never forward arbitrary exception text or credentials to annotations.
+Future<void> diagnoseWidget(
+  String name,
+  WidgetTester tester,
+  Future<void> Function(void Function(String)) body,
+) async {
+  var phase = 'before test';
+  final previous = FlutterError.onError;
+  FlutterError.onError = (details) {
+    final text = details.exceptionAsString().toLowerCase();
+    final category = text.contains('overflowed')
+        ? 'layout overflow'
+        : text.contains('unable to load asset')
+        ? 'asset load'
+        : text.contains('multiple exceptions')
+        ? 'multiple exceptions'
+        : 'other framework error';
+    debugPrintSynchronously('::error title=Cloud widget test::$name: $phase ($category)');
+    previous?.call(details);
+  };
+  try {
+    await body((value) => phase = value);
+    final exception = tester.takeException();
+    if (exception != null) throw exception;
+  } catch (error) {
+    debugPrintSynchronously('::error title=Cloud widget test::$name: $phase (${error.runtimeType})');
+    rethrow;
+  } finally {
+    FlutterError.onError = previous;
+  }
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -62,67 +96,93 @@ void main() {
   }
 
   testWidgets('admin can see the connection status and check again', (tester) async {
-    var reads = 0;
-    final service = SupabaseService.forTesting(
-      url: 'configured',
-      publishableKey: 'configured',
-      pingReader: () async {
-        reads++;
-        if (reads == 1) return {'message': 'ok'};
-        throw StateError('private-exception-content');
-      },
-    );
-    await pumpHome(tester, UserRole.admin, service);
-    expect(find.byKey(const Key('cloud-connection-card')), findsOneWidget);
-    expect(find.text('Cloud connection'), findsOneWidget);
-    expect(find.text('Connected'), findsOneWidget);
-    expect(reads, 1);
-
-    final retry = find.text('Check again');
-    await tester.ensureVisible(retry);
-    await tester.pumpAndSettle();
-    await tester.tap(retry);
-    await tester.pumpAndSettle();
-    expect(reads, 2);
-    expect(find.text("Can't reach cloud"), findsOneWidget);
-    expect(find.textContaining('private-exception-content'), findsNothing);
-  });
-
-  testWidgets('an unconfigured admin can retry without making a request', (tester) async {
-    var reads = 0;
-    final service = SupabaseService.forTesting(
-      url: '',
-      publishableKey: 'configured',
-      pingReader: () async {
-        reads++;
-        return {'message': 'ok'};
-      },
-    );
-    await pumpHome(tester, UserRole.admin, service);
-    expect(find.text('Not configured'), findsOneWidget);
-    await tester.ensureVisible(find.text('Check again'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Check again'));
-    await tester.pumpAndSettle();
-    expect(find.text('Not configured'), findsOneWidget);
-    expect(reads, 0);
-  });
-
-  for (final role in [UserRole.landowner, UserRole.buyer, UserRole.student]) {
-    testWidgets('${role.name} does not see or trigger the admin cloud card', (tester) async {
+    await diagnoseWidget('admin connected/retry', tester, (stage) async {
       var reads = 0;
       final service = SupabaseService.forTesting(
         url: 'configured',
         publishableKey: 'configured',
         pingReader: () async {
           reads++;
+          if (reads == 1) return {'message': 'ok'};
+          throw StateError('private-exception-content');
+        },
+      );
+      stage('pump admin home');
+      await pumpHome(tester, UserRole.admin, service);
+      stage('check card');
+      expect(find.byKey(const Key('cloud-connection-card')), findsOneWidget);
+      stage('check title');
+      expect(find.text('Cloud connection'), findsOneWidget);
+      stage('check connected');
+      expect(find.text('Connected'), findsOneWidget);
+      stage('check first read count');
+      expect(reads, 1);
+
+      final retry = find.text('Check again');
+      stage('make retry visible');
+      await tester.ensureVisible(retry);
+      await tester.pumpAndSettle();
+      stage('tap retry');
+      await tester.tap(retry);
+      await tester.pumpAndSettle();
+      stage('check second read count');
+      expect(reads, 2);
+      stage('check unreachable status');
+      expect(find.text("Can't reach cloud"), findsOneWidget);
+      stage('check no exception text');
+      expect(find.textContaining('private-exception-content'), findsNothing);
+    });
+  });
+
+  testWidgets('an unconfigured admin can retry without making a request', (tester) async {
+    await diagnoseWidget('admin unconfigured/retry', tester, (stage) async {
+      var reads = 0;
+      final service = SupabaseService.forTesting(
+        url: '',
+        publishableKey: 'configured',
+        pingReader: () async {
+          reads++;
           return {'message': 'ok'};
         },
       );
-      await pumpHome(tester, role, service);
-      expect(find.byKey(const Key('cloud-connection-card')), findsNothing);
-      expect(find.text('Cloud connection'), findsNothing);
+      stage('pump admin home');
+      await pumpHome(tester, UserRole.admin, service);
+      stage('check unconfigured status');
+      expect(find.text('Not configured'), findsOneWidget);
+      stage('make retry visible');
+      await tester.ensureVisible(find.text('Check again'));
+      await tester.pumpAndSettle();
+      stage('tap retry');
+      await tester.tap(find.text('Check again'));
+      await tester.pumpAndSettle();
+      stage('check unconfigured after retry');
+      expect(find.text('Not configured'), findsOneWidget);
+      stage('check no reads');
       expect(reads, 0);
+    });
+  });
+
+  for (final role in [UserRole.landowner, UserRole.buyer, UserRole.student]) {
+    testWidgets('${role.name} does not see or trigger the admin cloud card', (tester) async {
+      await diagnoseWidget('${role.name} non-admin', tester, (stage) async {
+        var reads = 0;
+        final service = SupabaseService.forTesting(
+          url: 'configured',
+          publishableKey: 'configured',
+          pingReader: () async {
+            reads++;
+            return {'message': 'ok'};
+          },
+        );
+        stage('pump non-admin home');
+        await pumpHome(tester, role, service);
+        stage('check card absent');
+        expect(find.byKey(const Key('cloud-connection-card')), findsNothing);
+        stage('check title absent');
+        expect(find.text('Cloud connection'), findsNothing);
+        stage('check no reads');
+        expect(reads, 0);
+      });
     });
   }
 }

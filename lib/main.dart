@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -5,6 +7,7 @@ import 'core/theme/app_theme.dart';
 import 'data/local_db.dart';
 import 'data/seed.dart';
 import 'core/i18n/strings.dart';
+import 'services/supabase_service.dart';
 import 'state/learning_controller.dart';
 import 'state/marketplace_controller.dart';
 import 'state/session_controller.dart';
@@ -16,6 +19,10 @@ Future<void> main() async {
   await LocalDb.instance.init();
   await Seed.ensure();
   runApp(const BlobApp());
+  // Render the first screen before optional cloud setup begins.
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    unawaited(SupabaseService.instance.init());
+  });
 }
 
 class BlobApp extends StatelessWidget {

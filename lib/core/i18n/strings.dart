@@ -141,6 +141,12 @@ class S {
 
   static const Map<String, Map<String, String>> _values = {
     'en': {
+      'cloud_connection': 'Cloud connection',
+      'cloud_not_configured': 'Not configured',
+      'cloud_connected': 'Connected',
+      'cloud_unreachable': 'Can\'t reach cloud',
+      'cloud_checking': 'Checking…',
+      'cloud_check_again': 'Check again',
       'app_tagline': 'One market for every harvest',
       'welcome_title': 'Welcome to BLOB',
       'welcome_body':
@@ -182,6 +188,12 @@ class S {
       'logout': 'Log out',
     },
     'kn': {
+      'cloud_connection': 'ಕ್ಲೌಡ್ ಸಂಪರ್ಕ',
+      'cloud_not_configured': 'ಹೊಂದಿಸಲಾಗಿಲ್ಲ',
+      'cloud_connected': 'ಸಂಪರ್ಕಗೊಂಡಿದೆ',
+      'cloud_unreachable': 'ಕ್ಲೌಡ್ ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ',
+      'cloud_checking': 'ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ…',
+      'cloud_check_again': 'ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ',
       'app_tagline': 'ಪ್ರತಿ ಬೆಳೆಗೂ ಒಂದೇ ಮಾರುಕಟ್ಟೆ',
       'welcome_title': 'BLOB ಗೆ ಸ್ವಾಗತ',
       'welcome_body':
@@ -223,6 +235,12 @@ class S {
       'logout': 'ಲಾಗ್ ಔಟ್',
     },
     'mr': {
+      'cloud_connection': 'क्लाउड कनेक्शन',
+      'cloud_not_configured': 'कॉन्फिगर केलेले नाही',
+      'cloud_connected': 'कनेक्ट केले आहे',
+      'cloud_unreachable': 'क्लाउडशी संपर्क होत नाही',
+      'cloud_checking': 'तपासत आहे…',
+      'cloud_check_again': 'पुन्हा तपासा',
       'app_tagline': 'प्रत्येक पिकासाठी एकच बाजार',
       'welcome_title': 'BLOB मध्ये स्वागत आहे',
       'welcome_body':
@@ -264,6 +282,12 @@ class S {
       'logout': 'बाहेर पडा',
     },
     'ml': {
+      'cloud_connection': 'ക്ലൗഡ് കണക്ഷൻ',
+      'cloud_not_configured': 'ക്രമീകരിച്ചിട്ടില്ല',
+      'cloud_connected': 'ബന്ധിപ്പിച്ചു',
+      'cloud_unreachable': 'ക്ലൗഡിലേക്ക് ബന്ധിപ്പിക്കാനായില്ല',
+      'cloud_checking': 'പരിശോധിക്കുന്നു…',
+      'cloud_check_again': 'വീണ്ടും പരിശോധിക്കുക',
       'app_tagline': 'എല്ലാ വിളവിനും ഒരേ വിപണി',
       'welcome_title': 'BLOB-ലേക്ക് സ്വാഗതം',
       'welcome_body':
@@ -305,6 +329,12 @@ class S {
       'logout': 'ലോഗ് ഔട്ട്',
     },
     'ta': {
+      'cloud_connection': 'கிளவுட் இணைப்பு',
+      'cloud_not_configured': 'அமைக்கப்படவில்லை',
+      'cloud_connected': 'இணைக்கப்பட்டது',
+      'cloud_unreachable': 'கிளவுட்டை அணுக முடியவில்லை',
+      'cloud_checking': 'சரிபார்க்கிறது…',
+      'cloud_check_again': 'மீண்டும் சரிபார்க்கவும்',
       'app_tagline': 'ஒவ்வொரு அறுவடைக்கும் ஒரே சந்தை',
       'welcome_title': 'BLOB க்கு வருக',
       'welcome_body':
@@ -346,6 +376,12 @@ class S {
       'logout': 'வெளியேறு',
     },
     'te': {
+      'cloud_connection': 'క్లౌడ్ కనెక్షన్',
+      'cloud_not_configured': 'కాన్ఫిగర్ చేయలేదు',
+      'cloud_connected': 'కనెక్ట్ అయింది',
+      'cloud_unreachable': 'క్లౌడ్‌ను చేరుకోలేకపోయింది',
+      'cloud_checking': 'తనిఖీ చేస్తోంది…',
+      'cloud_check_again': 'మళ్లీ తనిఖీ చేయండి',
       'app_tagline': 'ప్రతి పంటకూ ఒకే మార్కెట్',
       'welcome_title': 'BLOB కు స్వాగతం',
       'welcome_body':
@@ -387,6 +423,12 @@ class S {
       'logout': 'లాగ్ అవుట్',
     },
     'hi': {
+      'cloud_connection': 'क्लाउड कनेक्शन',
+      'cloud_not_configured': 'कॉन्फ़िगर नहीं है',
+      'cloud_connected': 'कनेक्ट है',
+      'cloud_unreachable': 'क्लाउड से कनेक्ट नहीं हो पा रहा है',
+      'cloud_checking': 'जाँच हो रही है…',
+      'cloud_check_again': 'फिर से जाँचें',
       'app_tagline': 'हर फसल के लिए एक बाज़ार',
       'welcome_title': 'BLOB में आपका स्वागत है',
       'welcome_body': 'भूमि मालिक, खरीदार, मज़दूर और निर्यातक — सब एक ही जगह।',

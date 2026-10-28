@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -5,6 +7,7 @@ import '../../core/rbac/permissions.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/app_user.dart';
 import '../../data/models/enums.dart';
+import '../../services/supabase_service.dart';
 import '../../state/marketplace_controller.dart';
 import '../../state/session_controller.dart';
 import '../admin/admin_screen.dart';
@@ -23,7 +26,10 @@ import 'role_dashboards.dart';
 
 /// Single entry point that renders the right dashboard for the user's role.
 class RoleHome extends StatelessWidget {
-  const RoleHome({super.key});
+  const RoleHome({super.key, SupabaseService? cloudService})
+    : _cloudService = cloudService;
+
+  final SupabaseService? _cloudService;
 
   @override
   Widget build(BuildContext context) {
@@ -546,6 +552,13 @@ class RoleHome extends StatelessWidget {
         listingCount: market.listings.length,
         jobCount: market.jobs.length,
       ),
+      if (user.can(Permission.approveAccounts)) ...[
+        const SizedBox(height: 20),
+        _CloudConnectionCard(
+          key: const Key('cloud-connection-widget'),
+          service: _cloudService ?? SupabaseService.instance,
+        ),
+      ],
       const SizedBox(height: 20),
       SectionHeader(
         'Awaiting Verification',
@@ -564,6 +577,91 @@ class RoleHome extends StatelessWidget {
 
   void _push(BuildContext context, Widget screen) {
     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
+  }
+}
+
+/// An admin-only connectivity check; it never touches marketplace or user data.
+class _CloudConnectionCard extends StatefulWidget {
+  const _CloudConnectionCard({super.key, required this.service});
+
+  final SupabaseService service;
+
+  @override
+  State<_CloudConnectionCard> createState() => _CloudConnectionCardState();
+}
+
+class _CloudConnectionCardState extends State<_CloudConnectionCard> {
+  CloudStatus? _status;
+  bool _checking = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_check());
+    });
+  }
+
+  Future<void> _check() async {
+    if (!_checking) setState(() => _checking = true);
+    final status = await widget.service.checkConnection();
+    if (!mounted) return;
+    setState(() {
+      _status = status;
+      _checking = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final session = context.watch<SessionController>();
+    final statusKey = _checking || _status == null
+        ? 'cloud_checking'
+        : switch (_status!.kind) {
+            CloudStatusKind.notConfigured => 'cloud_not_configured',
+            CloudStatusKind.connected => 'cloud_connected',
+            CloudStatusKind.unreachable => 'cloud_unreachable',
+          };
+    final connected = !_checking && _status?.kind == CloudStatusKind.connected;
+
+    return Card(
+      key: const Key('cloud-connection-card'),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              session.t('cloud_connection'),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(
+                  connected ? Icons.cloud_done_outlined : Icons.cloud_outlined,
+                  size: 20,
+                  color: connected ? AppColors.success : AppColors.textSecondary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    session.t(statusKey),
+                    key: const Key('cloud-connection-status'),
+                  ),
+                ),
+              ],
+            ),
+            TextButton.icon(
+              onPressed: _checking ? null : _check,
+              icon: const Icon(Icons.refresh, size: 18),
+              label: Text(session.t('cloud_check_again')),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

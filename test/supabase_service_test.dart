@@ -2,27 +2,11 @@ import 'dart:async';
 
 import 'package:blob/core/i18n/strings.dart';
 import 'package:blob/services/supabase_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-// Temporary CI diagnostics: report only the test name and error type, not
-// exception text that could contain a key.
-void diagnosedTest(String name, FutureOr<void> Function() body) {
-  test(name, () async {
-    try {
-      await Future<void>.sync(body);
-    } catch (error) {
-      debugPrintSynchronously(
-        '::error title=Cloud unit test::$name (${error.runtimeType})',
-      );
-      rethrow;
-    }
-  });
-}
 
 void main() {
   group('Optional Supabase connection', () {
-    diagnosedTest('both non-empty settings are required and no reader runs without them', () async {
+    test('both non-empty settings are required and no reader runs without them', () async {
       var reads = 0;
       for (final (url, key) in [('', ''), ('configured', ''), ('', 'configured'), (' ', 'configured')]) {
         final service = SupabaseService.forTesting(
@@ -40,7 +24,7 @@ void main() {
       expect(reads, 0);
     });
 
-    diagnosedTest('a returned ping row reports connected', () async {
+    test('a returned ping row reports connected', () async {
       var reads = 0;
       final service = SupabaseService.forTesting(
         url: 'configured',
@@ -58,7 +42,7 @@ void main() {
       expect(reads, 1);
     });
 
-    diagnosedTest('a missing or malformed ping row is not a successful connection', () async {
+    test('a missing or malformed ping row is not a successful connection', () async {
       for (final row in <Map<String, dynamic>?>[null, {}, {'message': null}]) {
         final service = SupabaseService.forTesting(
           url: 'configured',
@@ -71,7 +55,7 @@ void main() {
       }
     });
 
-    diagnosedTest('reader exceptions are reported without their potentially sensitive text', () async {
+    test('reader exceptions are reported without their potentially sensitive text', () async {
       const sensitiveText = 'private-exception-content';
       final service = SupabaseService.forTesting(
         url: 'configured',
@@ -84,7 +68,7 @@ void main() {
       expect(status.message, isNot(contains(sensitiveText)));
     });
 
-    diagnosedTest('a reader which never completes times out without throwing', () async {
+    test('a reader which never completes times out without throwing', () async {
       final pending = Completer<Map<String, dynamic>?>();
       final service = SupabaseService.forTesting(
         url: 'configured',
@@ -99,7 +83,7 @@ void main() {
     });
   });
 
-  diagnosedTest('cloud labels have translated values and English fallback', () {
+  test('cloud labels have translated values and English fallback', () {
     expect(S.t(AppLanguage.english, 'cloud_connection'), 'Cloud connection');
     expect(S.t(AppLanguage.kannada, 'cloud_connection'), 'ಕ್ಲೌಡ್ ಸಂಪರ್ಕ');
     expect(S.t(AppLanguage.hindi, 'cloud_check_again'), 'फिर से जाँचें');

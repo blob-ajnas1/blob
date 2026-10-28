@@ -555,6 +555,7 @@ class RoleHome extends StatelessWidget {
       if (user.can(Permission.approveAccounts)) ...[
         const SizedBox(height: 20),
         _CloudConnectionCard(
+          key: const Key('cloud-connection-widget'),
           service: _cloudService ?? SupabaseService.instance,
         ),
       ],
@@ -581,7 +582,7 @@ class RoleHome extends StatelessWidget {
 
 /// An admin-only connectivity check; it never touches marketplace or user data.
 class _CloudConnectionCard extends StatefulWidget {
-  const _CloudConnectionCard({required this.service});
+  const _CloudConnectionCard({super.key, required this.service});
 
   final SupabaseService service;
 

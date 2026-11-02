@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/theme/app_colors.dart';
 import '../../state/session_controller.dart';
 import '../learning/history_screen.dart';
+import '../widgets/floating_nav.dart';
 import 'edu_compete_screen.dart';
 import 'edu_home_screen.dart';
 import 'edu_profile_screen.dart';
@@ -31,25 +31,25 @@ class _EduShellState extends State<EduShell> {
     _EduTab(
       icon: Icons.today_outlined,
       activeIcon: Icons.today,
-      label: 'Today',
+      labelKey: 'edu_tab_today',
       screen: EduHomeScreen(),
     ),
     _EduTab(
       icon: Icons.emoji_events_outlined,
       activeIcon: Icons.emoji_events,
-      label: 'Compete',
+      labelKey: 'edu_tab_compete',
       screen: EduCompeteScreen(),
     ),
     _EduTab(
       icon: Icons.timeline_outlined,
       activeIcon: Icons.timeline,
-      label: 'Progress',
+      labelKey: 'edu_tab_progress',
       screen: HistoryScreen(),
     ),
     _EduTab(
       icon: Icons.person_outline,
       activeIcon: Icons.person,
-      label: 'Profile',
+      labelKey: 'profile',
       screen: EduProfileScreen(),
     ),
   ];
@@ -57,36 +57,27 @@ class _EduShellState extends State<EduShell> {
   @override
   Widget build(BuildContext context) {
     // Watched so a category switch or profile edit rebuilds the shell.
-    final user = context.watch<SessionController>().user;
-    if (user == null) return const SizedBox.shrink();
+    final session = context.watch<SessionController>();
+    if (session.user == null) return const SizedBox.shrink();
 
     return Scaffold(
       body: IndexedStack(
         index: _index,
         children: [for (final t in _tabs) t.screen],
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          border: Border(top: BorderSide(color: AppColors.border)),
-        ),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: _index,
-          elevation: 0,
-          onTap: (i) => setState(() => _index = i),
-          items: [
-            for (var i = 0; i < _tabs.length; i++)
-              BottomNavigationBarItem(
-                icon: _EduNavIcon(icon: _tabs[i].icon, selected: false),
-                activeIcon: _EduNavIcon(
-                  icon: _tabs[i].activeIcon,
-                  selected: true,
-                ),
-                label: _tabs[i].label,
-              ),
-          ],
-        ),
+      bottomNavigationBar: FloatingNavBar(
+        selectedIndex: _index,
+        underlined: true,
+        onTap: (i) => setState(() => _index = i),
+        items: [
+          for (final tab in _tabs)
+            FloatingNavItem(
+              id: tab.labelKey,
+              label: session.t(tab.labelKey),
+              icon: tab.icon,
+              activeIcon: tab.activeIcon,
+            ),
+        ],
       ),
     );
   }
@@ -95,41 +86,13 @@ class _EduShellState extends State<EduShell> {
 class _EduTab {
   final IconData icon;
   final IconData activeIcon;
-  final String label;
+  final String labelKey;
   final Widget screen;
 
   const _EduTab({
     required this.icon,
     required this.activeIcon,
-    required this.label,
+    required this.labelKey,
     required this.screen,
   });
-}
-
-/// Matches the marketplace shell's active-tab rule exactly, so the two apps
-/// feel like one product: the layout language is shared, only the hue differs.
-class _EduNavIcon extends StatelessWidget {
-  final IconData icon;
-  final bool selected;
-
-  const _EduNavIcon({required this.icon, required this.selected});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 22,
-          height: 3,
-          margin: const EdgeInsets.only(bottom: 5),
-          decoration: BoxDecoration(
-            color: selected ? AppColors.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        Icon(icon),
-      ],
-    );
-  }
 }

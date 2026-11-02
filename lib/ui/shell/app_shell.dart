@@ -16,6 +16,7 @@ import '../property/property_market_screen.dart';
 import '../transport/fleet_screen.dart';
 import '../transport/rental_hub_screen.dart';
 import '../transport/transport_booking_screen.dart';
+import '../widgets/floating_nav.dart';
 
 class NavDestination {
   final IconData icon;
@@ -198,29 +199,46 @@ class _AppShellState extends State<AppShell> {
         index: safeIndex,
         children: destinations.map((d) => d.screen).toList(),
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          border: Border(top: BorderSide(color: AppColors.border)),
-        ),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: safeIndex,
-          elevation: 0,
-          onTap: (i) => setState(() => _index = i),
-          items: [
-            for (var i = 0; i < destinations.length; i++)
-              BottomNavigationBarItem(
-                icon: _NavIcon(icon: destinations[i].icon, selected: false),
-                activeIcon: _NavIcon(
-                  icon: destinations[i].activeIcon,
-                  selected: true,
-                ),
-                label: _label(session, destinations[i].labelKey),
+      bottomNavigationBar: user.role == UserRole.buyer
+          ? FloatingNavBar(
+              selectedIndex: safeIndex,
+              onTap: (i) => setState(() => _index = i),
+              items: [
+                for (final destination in destinations)
+                  FloatingNavItem(
+                    id: destination.labelKey,
+                    label: _label(session, destination.labelKey),
+                    icon: destination.icon,
+                    activeIcon: destination.activeIcon,
+                  ),
+              ],
+            )
+          : Container(
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                border: Border(top: BorderSide(color: AppColors.border)),
               ),
-          ],
-        ),
-      ),
+              child: BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                currentIndex: safeIndex,
+                elevation: 0,
+                onTap: (i) => setState(() => _index = i),
+                items: [
+                  for (var i = 0; i < destinations.length; i++)
+                    BottomNavigationBarItem(
+                      icon: _NavIcon(
+                        icon: destinations[i].icon,
+                        selected: false,
+                      ),
+                      activeIcon: _NavIcon(
+                        icon: destinations[i].activeIcon,
+                        selected: true,
+                      ),
+                      label: _label(session, destinations[i].labelKey),
+                    ),
+                ],
+              ),
+            ),
     );
   }
 

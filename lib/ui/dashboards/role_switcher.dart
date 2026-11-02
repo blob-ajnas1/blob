@@ -14,13 +14,64 @@ import '../widgets/common.dart';
 /// sheet to add a second role.
 class ActiveRoleButton extends StatelessWidget {
   final AppUser user;
-  const ActiveRoleButton({super.key, required this.user});
+  final bool compactOnDark;
+  const ActiveRoleButton({
+    super.key,
+    required this.user,
+    this.compactOnDark = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<SessionController>();
+    final roleLabel = session.t('role_name_${user.role.name}');
+    final semanticsLabel = session
+        .t('active_role_semantics')
+        .replaceAll('{role}', roleLabel);
+    if (compactOnDark) {
+      return Semantics(
+        button: true,
+        label: semanticsLabel,
+        child: Material(
+          color: AppColors.textOnPrimary.withValues(alpha: 0.16),
+          borderRadius: BorderRadius.circular(20),
+          child: InkWell(
+            key: const Key('active-role-button'),
+            borderRadius: BorderRadius.circular(20),
+            onTap: () => showRoleSwitcherSheet(context),
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(10, 8, 6, 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      roleLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textOnPrimary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 20,
+                    color: AppColors.textOnPrimary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return Semantics(
       button: true,
-      label: 'Active role: ${user.role.label}. Tap to switch role.',
+      label: semanticsLabel,
       child: Material(
         color: AppColors.primarySoft,
         borderRadius: BorderRadius.circular(14),
@@ -29,7 +80,7 @@ class ActiveRoleButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           onTap: () => showRoleSwitcherSheet(context),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 7, 6, 7),
+            padding: const EdgeInsetsDirectional.fromSTEB(10, 7, 6, 7),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -41,7 +92,7 @@ class ActiveRoleButton extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Active role',
+                        session.t('active_role'),
                         style: TextStyle(
                           fontSize: 10.5,
                           height: 1.1,
@@ -51,7 +102,7 @@ class ActiveRoleButton extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        user.role.label,
+                        roleLabel,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -132,18 +183,21 @@ class RoleSwitcherSheet extends StatelessWidget {
         controller: scroll,
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
-          const Text(
-            'Switch role',
-            style: TextStyle(
+          Text(
+            session.t('switch_role'),
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
               color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Your home screen changes to match the role you pick.',
-            style: TextStyle(fontSize: 13.5, color: AppColors.textSecondary),
+          Text(
+            session.t('switch_role_hint'),
+            style: const TextStyle(
+              fontSize: 13.5,
+              color: AppColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 16),
           for (final role in user.roles)
@@ -154,14 +208,18 @@ class RoleSwitcherSheet extends StatelessWidget {
                 Navigator.of(context).pop();
                 if (role == user.role) return;
                 await session.switchRole(role);
-                confirm('Switched to ${role.label}');
+                confirm(
+                  session
+                      .t('role_switched')
+                      .replaceAll('{role}', session.t('role_name_${role.name}')),
+                );
               },
             ),
           if (addable.isNotEmpty) ...[
             const SizedBox(height: 18),
-            const Text(
-              'ADD ANOTHER ROLE',
-              style: TextStyle(
+            Text(
+              session.t('add_another_role'),
+              style: const TextStyle(
                 fontSize: 11.5,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.8,
@@ -180,17 +238,19 @@ class RoleSwitcherSheet extends StatelessWidget {
                 onTap: () async {
                   Navigator.of(context).pop();
                   if (await session.addRole(role)) {
-                    confirm('${role.label} added — now active');
+                    confirm(
+                      session.t('role_added').replaceAll(
+                        '{role}',
+                        session.t('role_name_${role.name}'),
+                      ),
+                    );
                   }
                 },
               ),
             const SizedBox(height: 4),
-            const InfoBanner(
+            InfoBanner(
               icon: Icons.verified_user_outlined,
-              message:
-                  'Roles that need a licence or company check (broker, '
-                  'exporter, taxi or rental business) are added from '
-                  'Profile, so they still get reviewed.',
+              message: session.t('role_review_info'),
             ),
           ],
         ],
@@ -214,6 +274,7 @@ class _RoleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<SessionController>();
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Material(
@@ -224,7 +285,7 @@ class _RoleTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Container(
-            padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 12, 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
@@ -250,7 +311,7 @@ class _RoleTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        role.label,
+                        session.t('role_name_${role.name}'),
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -259,7 +320,7 @@ class _RoleTile extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        role.switcherHint,
+                        session.t('role_switch_hint_${role.name}'),
                         style: const TextStyle(
                           fontSize: 12.5,
                           color: AppColors.textSecondary,

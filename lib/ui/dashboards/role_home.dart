@@ -33,7 +33,8 @@ class RoleHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<SessionController>().user;
+    final session = context.watch<SessionController>();
+    final user = session.user;
     if (user == null) return const SizedBox.shrink();
 
     return Scaffold(
@@ -52,11 +53,9 @@ class RoleHome extends StatelessWidget {
               DashboardHeader(user: user),
               const SizedBox(height: 18),
               if (user.isPending) ...[
-                const InfoBanner(
+                InfoBanner(
                   icon: Icons.hourglass_top,
-                  message:
-                      'Your account is awaiting verification by the BLOB team. '
-                      'Some features stay locked until approval.',
+                  message: session.t('account_pending_notice'),
                   color: AppColors.warning,
                   background: AppColors.pendingSoft,
                 ),
@@ -142,20 +141,25 @@ class RoleHome extends StatelessWidget {
 
   List<Widget> _buyer(BuildContext context, AppUser user) {
     final market = context.watch<MarketplaceController>();
+    final session = context.watch<SessionController>();
     final fromFarmers = market.listingsFor(ListingChannel.toBuyers);
     final myResale = market.listingsByOwner(user.id);
 
     return [
       QuickActionsGrid(
+        compactRow: true,
         actions: [
           ActionTile(
             icon: Icons.storefront_outlined,
-            label: 'Buy Crops',
+            label: session.t('buyer_buy_crops'),
+            compact: true,
             onTap: () => _push(context, const MarketScreen()),
           ),
           ActionTile(
             icon: Icons.sell_outlined,
-            label: 'Sell to Exporters',
+            label: session.t('buyer_sell_exporters'),
+            compact: true,
+            warm: true,
             onTap: () => _push(
               context,
               const CreateListingScreen(channel: ListingChannel.toExporters),
@@ -163,38 +167,45 @@ class RoleHome extends StatelessWidget {
           ),
           ActionTile(
             icon: Icons.groups_outlined,
-            label: 'Hire Labour',
+            label: session.t('buyer_hire_labour'),
+            compact: true,
             onTap: () => _push(context, const PostJobScreen()),
           ),
           ActionTile(
             icon: Icons.local_shipping_outlined,
-            label: 'Transport',
+            label: session.t('buyer_transport'),
+            compact: true,
+            warm: true,
             onTap: () => _push(context, const TransportBookingScreen()),
           ),
         ],
       ),
       const SizedBox(height: 22),
       SectionHeader(
-        'Fresh from Farmers',
-        actionLabel: 'View all',
+        session.t('buyer_fresh_farmers'),
+        actionLabel: session.t('view_all'),
         onAction: () => _push(context, const MarketScreen()),
       ),
       if (fromFarmers.isEmpty)
-        const EmptyCard(
+        EmptyCard(
           icon: Icons.storefront_outlined,
-          message: 'No crops available right now. Check back soon.',
+          message: session.t('buyer_no_crops'),
         )
       else
-        ...fromFarmers
-            .take(4)
-            .map((l) => ListingCard(listing: l, showBuy: true)),
+        ...fromFarmers.take(4).map(
+          (listing) => ListingCard(
+            listing: listing,
+            showBuy: true,
+            photoStyle: true,
+          ),
+        ),
       const SizedBox(height: 22),
-      const SectionHeader('My Export Listings'),
+      SectionHeader(session.t('buyer_export_listings')),
       if (myResale.isEmpty)
         EmptyCard(
           icon: Icons.public,
-          message: 'Resell your purchased stock to global exporters.',
-          actionLabel: 'Create export listing',
+          message: session.t('buyer_export_empty'),
+          actionLabel: session.t('buyer_create_export'),
           onAction: () => _push(
             context,
             const CreateListingScreen(channel: ListingChannel.toExporters),
@@ -676,7 +687,8 @@ class _RentalPrompt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final market = context.watch<MarketplaceController>();
-    final user = context.watch<SessionController>().user!;
+    final session = context.watch<SessionController>();
+    final user = session.user!;
     final mine = market.rentalsListedBy(user.id);
 
     void open({bool lend = false}) => Navigator.of(context).push(
@@ -688,7 +700,7 @@ class _RentalPrompt extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionHeader('Vehicle Rental'),
+        SectionHeader(session.t('vehicle_rental')),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -701,10 +713,14 @@ class _RentalPrompt extends StatelessWidget {
             children: [
               Text(
                 mine.isEmpty
-                    ? 'Rent a vehicle by the day, or earn from one you '
-                          'already own. No licence or business account needed.'
-                    : 'You have ${mine.length} vehicle'
-                          '${mine.length == 1 ? '' : 's'} listed for rent.',
+                    ? session.t('vehicle_rental_empty')
+                    : session
+                          .t(
+                            mine.length == 1
+                                ? 'vehicle_rental_one'
+                                : 'vehicle_rental_many',
+                          )
+                          .replaceAll('{count}', '${mine.length}'),
                 style: const TextStyle(
                   fontSize: 13,
                   height: 1.4,
@@ -717,7 +733,7 @@ class _RentalPrompt extends StatelessWidget {
                   Expanded(
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.vpn_key_outlined, size: 18),
-                      label: const Text('Rent'),
+                      label: Text(session.t('rent')),
                       onPressed: () => open(),
                     ),
                   ),
@@ -725,7 +741,7 @@ class _RentalPrompt extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.handshake_outlined, size: 18),
-                      label: Text(mine.isEmpty ? 'Lend' : 'Manage'),
+                      label: Text(session.t(mine.isEmpty ? 'lend' : 'manage')),
                       onPressed: () => open(lend: true),
                     ),
                   ),

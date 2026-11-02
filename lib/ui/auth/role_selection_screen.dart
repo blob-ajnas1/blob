@@ -9,6 +9,7 @@ import '../../data/models/role_subtype.dart';
 import '../../state/learning_controller.dart';
 import '../../state/session_controller.dart';
 import '../shell/track_router.dart';
+import '../widgets/brand.dart';
 import '../widgets/common.dart';
 import '../widgets/location_picker.dart';
 import 'student_details_screen.dart';
@@ -117,117 +118,117 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     final session = context.watch<SessionController>();
+    const palette = AgriPalette();
 
     return Scaffold(
-      appBar: AppBar(title: Text(session.t('choose_role'))),
+      backgroundColor: AppColors.agriCream,
       body: SafeArea(
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  session.t('role_hint'),
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 14,
+              padding: const EdgeInsetsDirectional.fromSTEB(20, 12, 20, 8),
+              child: Row(
+                children: [
+                  const BlobMark(size: 42),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          session.t('brand_name'),
+                          style: TextStyle(
+                            color: palette.primaryDark,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        Text(
+                          session.t('brand_agri_market'),
+                          style: TextStyle(
+                            color: palette.primary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
             Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: kRoleMeta.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  final meta = kRoleMeta[index];
-                  final selected = _selected == meta.role;
-                  return InkWell(
-                    onTap: () => setState(() => _selected = meta.role),
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: selected
-                            ? AppColors.primarySoft
-                            : AppColors.surface,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: selected
-                              ? AppColors.primary
-                              : AppColors.border,
-                          width: selected ? 2 : 1,
+              child: ListView(
+                padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 20, 16),
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (Navigator.of(context).canPop()) ...[
+                        IconButton.filled(
+                          onPressed: () => Navigator.of(context).maybePop(),
+                          style: IconButton.styleFrom(
+                            backgroundColor: palette.primarySoft,
+                            foregroundColor: palette.primary,
+                          ),
+                          icon: const Icon(Icons.arrow_back),
+                          tooltip: MaterialLocalizations.of(context)
+                              .backButtonTooltip,
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              session.t('choose_role'),
+                              style: TextStyle(
+                                fontSize: 21,
+                                height: 1.15,
+                                fontWeight: FontWeight.w900,
+                                color: palette.primaryDark,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              session.t('role_hint'),
+                              style: const TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 13.5,
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 46,
-                            height: 46,
-                            decoration: BoxDecoration(
-                              color: selected
-                                  ? AppColors.primary
-                                  : AppColors.primarySoft,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              meta.icon,
-                              color: selected
-                                  ? Colors.white
-                                  : AppColors.primary,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        meta.role.label,
-                                        style: const TextStyle(
-                                          fontSize: 16.5,
-                                          fontWeight: FontWeight.w800,
-                                          color: AppColors.textPrimary,
-                                        ),
-                                      ),
-                                    ),
-                                    if (meta.role.requiresApproval) ...[
-                                      const SizedBox(width: 8),
-                                      const StatusPill(
-                                        label: 'Verified',
-                                        color: AppColors.warning,
-                                        background: AppColors.pendingSoft,
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                                const SizedBox(height: 3),
-                                Text(
-                                  meta.summary,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    height: 1.3,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  for (final meta in kRoleMeta) ...[
+                    _RoleChoice(
+                      meta: meta,
+                      label: session.t('role_name_${meta.role.name}'),
+                      summary: session.t('role_summary_${meta.role.name}'),
+                      approvalLabel: session.t('approval_needed'),
+                      selected: _selected == meta.role,
+                      onTap: () => setState(() => _selected = meta.role),
                     ),
-                  );
-                },
+                    const SizedBox(height: 10),
+                  ],
+                ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(20),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsetsDirectional.fromSTEB(20, 14, 20, 16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [AppColors.agriCream, palette.primarySoft],
+                ),
+              ),
               child: ElevatedButton(
                 onPressed: _selected == null
                     ? null
@@ -241,10 +242,144 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                           ),
                         ),
                       ),
-                child: Text(session.t('continue_label')),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: palette.primary,
+                  foregroundColor: AppColors.textOnPrimary,
+                  minimumSize: const Size.fromHeight(54),
+                  shape: const StadiumBorder(),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        session.t('continue_label'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    const Icon(Icons.arrow_forward_rounded, size: 20),
+                  ],
+                ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RoleChoice extends StatelessWidget {
+  const _RoleChoice({
+    required this.meta,
+    required this.label,
+    required this.summary,
+    required this.approvalLabel,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final RoleMeta meta;
+  final String label;
+  final String summary;
+  final String approvalLabel;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    const palette = AgriPalette();
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: Material(
+        color: selected ? palette.primarySoft : AppColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        child: InkWell(
+          key: ValueKey('role-choice-${meta.role.name}'),
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(18),
+          child: Container(
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 14, 14, 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: selected ? palette.primary : palette.border,
+                width: selected ? 2 : 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: palette.primaryDark.withValues(alpha: 0.06),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: palette.primarySoft,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(meta.icon, color: palette.primary, size: 26),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Text(
+                            label,
+                            style: TextStyle(
+                              fontSize: 16.5,
+                              fontWeight: FontWeight.w800,
+                              color: palette.primaryDark,
+                            ),
+                          ),
+                          if (meta.role.requiresApproval)
+                            StatusPill(
+                              label: approvalLabel,
+                              color: AppColors.warning,
+                              background: AppColors.pendingSoft,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        summary,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          height: 1.3,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  selected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  color: selected ? palette.primary : palette.border,
+                  size: 24,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

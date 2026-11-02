@@ -180,6 +180,37 @@ class S {
       'change_number': 'Change number',
       'choose_role': 'Choose your account type',
       'role_hint': 'This decides what you can do on BLOB',
+      'brand_name': 'BLOB',
+      'brand_agri_market': 'Agri Market',
+      'approval_needed': 'Approval needed',
+      'role_name_landowner': 'Landowner',
+      'role_name_buyer': 'Buyer',
+      'role_name_shopkeeper': 'Shopkeeper',
+      'role_name_laborer': 'Labourer',
+      'role_name_broker': 'Broker',
+      'role_name_transport': 'Driver',
+      'role_name_foreignInvestor': 'Foreign Investor',
+      'role_name_globalExporter': 'Global Exporter',
+      'role_name_taxiService': 'Taxi Service',
+      'role_name_vehicleRental': 'Vehicle Rent',
+      'role_name_propertyOwner': 'Property & Land Rental',
+      'role_summary_landowner': 'Sell your crops, hire workers, find investors',
+      'role_summary_buyer': 'Buy from farmers, resell to exporters, hire crews',
+      'role_summary_shopkeeper':
+          'Run your shop: stock, customer orders and payments',
+      'role_summary_laborer': 'Find work — alone or as a group',
+      'role_summary_broker': 'Facilitate deals and earn commission',
+      'role_summary_transport':
+          'Move harvest and goods with pickups or heavy trucks',
+      'role_summary_foreignInvestor': 'Invest in local agricultural projects',
+      'role_summary_globalExporter':
+          'Registered company buying and shipping produce',
+      'role_summary_taxiService':
+          'Run autos, cabs or traveller buses for passengers',
+      'role_summary_vehicleRental':
+          'Rent out cars, jeeps, SUVs, bikes and scooters',
+      'role_summary_propertyOwner':
+          'Lease farm land, commercial space or housing',
       'choose_specialisation': 'Choose your specialisation',
       'specialisation_hint': 'This shapes the work you get inside your role',
       'your_name': 'Your name',

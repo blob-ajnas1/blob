@@ -155,6 +155,20 @@ class S {
       'choose_language': 'Choose your language',
       'language_hint': 'You can change this later in Settings',
       'continue_label': 'Continue',
+      'about_you': 'About you',
+      'about_question': 'Which best describes you?',
+      'about_description':
+          'This decides the daily tasks and opportunities you see. '
+          'You can change it later in your profile.',
+      'category_student': 'Student',
+      'category_job_seeker': 'Job Seeker',
+      'category_student_subtitle': 'Currently studying in school or college',
+      'category_job_seeker_subtitle': 'Not studying — looking for work',
+      'category_student_description':
+          'Daily learning tasks, quizzes and games matched to your class',
+      'category_job_seeker_description':
+          'Skill-building tasks and job listings matched to your goals',
+      'category_choose_prompt': 'Please choose one option to continue',
       'login_title': 'Enter your phone number',
       'login_body': 'We will text you a 6-digit code by SMS',
       'phone_number': 'Phone number',

@@ -53,9 +53,9 @@ class EduHomeScreen extends StatelessWidget {
               child: _TodayCard(progress: progress, challengeDay: challengeDay),
             ),
             const SizedBox(height: 22),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: SectionHeader('Today\u2019s tasks'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SectionHeader(session.t('edu_today_tasks')),
             ),
             const SizedBox(height: 4),
             for (final type in DailyTaskType.values)
@@ -70,9 +70,9 @@ class EduHomeScreen extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: 24),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: SectionHeader('Your progress'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SectionHeader(session.t('edu_your_progress')),
             ),
             const SizedBox(height: 10),
             Padding(
@@ -83,11 +83,16 @@ class EduHomeScreen extends StatelessWidget {
                     child: _MetricTile(
                       icon: Icons.local_fire_department_rounded,
                       color: AppColors.streak,
-                      value: 'Day $challengeDay',
-                      label: 'Challenge day',
+                      value: session
+                          .t('edu_day_value')
+                          .replaceAll('{day}', '$challengeDay'),
+                      label: session.t('edu_challenge_day'),
                       footnote: learning.currentStreak(user.id) > 1
-                          ? '${learning.currentStreak(user.id)} day streak'
-                          : 'Keep it going',
+                          ? session.t('edu_streak_count').replaceAll(
+                              '{count}',
+                              '${learning.currentStreak(user.id)}',
+                            )
+                          : session.t('edu_keep_going'),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -96,10 +101,12 @@ class EduHomeScreen extends StatelessWidget {
                       icon: Icons.stars_rounded,
                       color: AppColors.warning,
                       value: '$points',
-                      label: 'Points earned',
+                      label: session.t('edu_points_earned'),
                       footnote: rank == null
-                          ? 'Not ranked yet'
-                          : 'Rank #$rank overall',
+                          ? session.t('edu_not_ranked')
+                          : session
+                                .t('edu_rank_overall')
+                                .replaceAll('{rank}', '$rank'),
                     ),
                   ),
                 ],
@@ -152,79 +159,94 @@ class _StudentHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final firstName = userName.split(' ').first;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.primary, AppColors.primaryDark],
-        ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
+    final session = context.watch<SessionController>();
+    final name = userName.trim();
+    final firstName = name.isEmpty
+        ? session.t('greeting_friend')
+        : name.split(RegExp(r'\s+')).first;
+    final className = currentClass?.trim();
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              ExcludeSemantics(
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.primarySoft,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Icon(
+                    Icons.school_outlined,
+                    size: 25,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Hi, $firstName',
+                      '${session.t('edu_hi')}, $firstName',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w900,
-                        color: AppColors.textOnPrimary,
+                        color: AppColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     Text(
-                      currentClass == null
-                          ? 'Student'
-                          : 'Student \u00b7 $currentClass',
-                      style: TextStyle(
+                      className == null || className.isEmpty
+                          ? session.t('role_name_student')
+                          : '${session.t('role_name_student')} · $className',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textOnPrimary.withValues(alpha: 0.75),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 10),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                 decoration: BoxDecoration(
-                  color: AppColors.textOnPrimary.withValues(alpha: 0.14),
+                  color: AppColors.primarySoft,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
                       height: 7,
                       width: 7,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.accent,
+                        color: AppColors.success,
                       ),
                     ),
                     const SizedBox(width: 6),
-                    const Text(
-                      'LIVE',
+                    Text(
+                      session.t('edu_live'),
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 0.8,
-                        color: AppColors.textOnPrimary,
+                        color: AppColors.primary,
                       ),
                     ),
                   ],
@@ -233,26 +255,74 @@ class _StudentHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 18),
-          Row(
-            children: [
-              Expanded(
-                child: _CountBlock(
-                  value: activeToday,
-                  label: 'Active students today',
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: AlignmentDirectional.centerStart,
+                end: AlignmentDirectional.centerEnd,
+                colors: [AppColors.primary, AppColors.primaryDark],
+              ),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: Stack(
+              children: [
+                PositionedDirectional(
+                  top: 0,
+                  end: 0,
+                  child: ExcludeSemantics(
+                    child: Icon(
+                      Icons.auto_stories_rounded,
+                      size: 72,
+                      color: AppColors.textOnPrimary.withValues(alpha: 0.18),
+                    ),
+                  ),
                 ),
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                color: AppColors.textOnPrimary.withValues(alpha: 0.2),
-              ),
-              Expanded(
-                child: _CountBlock(
-                  value: totalLearners,
-                  label: 'Total students using the app',
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 76),
+                      child: Text(
+                        session.t('edu_hero_title'),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          height: 1.2,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.textOnPrimary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _CountBlock(
+                            value: activeToday,
+                            label: session.t('edu_active_learners'),
+                          ),
+                        ),
+                        Container(
+                          width: 1,
+                          height: 40,
+                          color: AppColors.textOnPrimary.withValues(alpha: 0.2),
+                        ),
+                        Expanded(
+                          child: _CountBlock(
+                            value: totalLearners,
+                            label: session.t('edu_total_learners'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -305,6 +375,7 @@ class _TodayCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<SessionController>();
     final done = progress.completedCount;
     final all = progress.allComplete;
 
@@ -314,7 +385,9 @@ class _TodayCard extends StatelessWidget {
         color: AppColors.card,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: all ? AppColors.success : AppColors.border,
+          color: all
+              ? AppColors.success
+              : AppColors.primary.withValues(alpha: 0.35),
           width: all ? 1.6 : 1,
         ),
       ),
@@ -331,9 +404,9 @@ class _TodayCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  all
-                      ? 'Day $challengeDay complete'
-                      : 'Challenge day $challengeDay',
+                  session
+                      .t(all ? 'edu_day_complete' : 'edu_challenge_day_value')
+                      .replaceAll('{day}', '$challengeDay'),
                   style: const TextStyle(
                     fontSize: 15.5,
                     fontWeight: FontWeight.w900,
@@ -341,12 +414,20 @@ class _TodayCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                '$done of 3',
-                style: const TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textSecondary,
+              Flexible(
+                child: Text(
+                  session
+                      .t('edu_tasks_done_count')
+                      .replaceAll('{done}', '$done')
+                      .replaceAll('{total}', '${DailyTaskType.values.length}'),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ),
             ],
@@ -365,10 +446,7 @@ class _TodayCard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            all
-                ? 'All three tasks done. Come back tomorrow to extend your '
-                      'streak.'
-                : 'Finish all three tasks today to keep your streak alive.',
+            session.t(all ? 'edu_all_tasks_done' : 'edu_finish_tasks'),
             style: const TextStyle(
               fontSize: 12.5,
               color: AppColors.textSecondary,
@@ -398,10 +476,12 @@ class _TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<SessionController>();
     return Material(
       color: AppColors.card,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
+        key: ValueKey('student-task-${type.name}'),
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
         child: Container(
@@ -419,7 +499,7 @@ class _TaskCard extends StatelessWidget {
                 width: 46,
                 decoration: BoxDecoration(
                   color: complete
-                      ? AppColors.clearedSoft
+                      ? AppColors.success.withValues(alpha: 0.12)
                       : AppColors.primarySoft,
                   borderRadius: BorderRadius.circular(13),
                 ),
@@ -435,7 +515,7 @@ class _TaskCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      type.label,
+                      session.t('edu_task_${type.name}'),
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -453,33 +533,27 @@ class _TaskCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(999),
-                            child: LinearProgressIndicator(
-                              value: (done / type.target).clamp(0.0, 1.0),
-                              minHeight: 5,
-                              backgroundColor: AppColors.background,
-                              valueColor: AlwaysStoppedAnimation(
-                                complete
-                                    ? AppColors.success
-                                    : AppColors.primary,
-                              ),
-                            ),
-                          ),
+                    Text(
+                      '$done/${type.target} ${session.t('edu_unit_${type.name}')}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(999),
+                      child: LinearProgressIndicator(
+                        value: (done / type.target).clamp(0.0, 1.0),
+                        minHeight: 5,
+                        backgroundColor: AppColors.background,
+                        valueColor: AlwaysStoppedAnimation(
+                          complete ? AppColors.success : AppColors.primary,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '$done/${type.target} ${type.unitLabel}',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
@@ -570,6 +644,8 @@ class _MetricTile extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,
@@ -600,10 +676,9 @@ class _StreakStrip extends StatelessWidget {
 
   final List<({String dayKey, DateTime date, int completed})> days;
 
-  static const _weekday = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<SessionController>();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
@@ -614,9 +689,9 @@ class _StreakStrip extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Last 7 days',
-            style: TextStyle(
+          Text(
+            session.t('edu_last_week'),
+            style: const TextStyle(
               fontSize: 11.5,
               fontWeight: FontWeight.w800,
               color: AppColors.textSecondary,
@@ -624,51 +699,54 @@ class _StreakStrip extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               for (final day in days)
-                Column(
-                  children: [
-                    Container(
-                      height: 30,
-                      width: 30,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: day.completed == 3
-                            ? AppColors.primary
-                            : day.completed > 0
-                            ? AppColors.primarySoft
-                            : AppColors.background,
-                        border: Border.all(
-                          color: day.completed > 0
-                              ? AppColors.primary
-                              : AppColors.border,
-                        ),
-                      ),
-                      child: Text(
-                        '${day.date.day}',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w800,
+                Expanded(
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 30,
+                        width: 30,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
                           color: day.completed == 3
-                              ? AppColors.textOnPrimary
-                              : day.completed > 0
                               ? AppColors.primary
-                              : AppColors.textSecondary,
+                              : day.completed > 0
+                              ? AppColors.primarySoft
+                              : AppColors.background,
+                          border: Border.all(
+                            color: day.completed > 0
+                                ? AppColors.primary
+                                : AppColors.border,
+                          ),
+                        ),
+                        child: Text(
+                          '${day.date.day}',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                            color: day.completed == 3
+                                ? AppColors.textOnPrimary
+                                : day.completed > 0
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _weekday[day.date.weekday - 1],
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textSecondary,
+                      const SizedBox(height: 4),
+                      Text(
+                        session.t('edu_weekday_${day.date.weekday}'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
             ],
           ),

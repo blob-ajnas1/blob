@@ -44,6 +44,9 @@ class AppColors {
     success = palette.success;
   }
 
+  /// Warm canvas used by the marketplace onboarding and buyer home.
+  static const Color agriCream = Color(0xFFFBF8ED);
+
   static const Color surface = Color(0xFFFFFFFF);
   static const Color card = Color(0xFFFFFFFF);
 

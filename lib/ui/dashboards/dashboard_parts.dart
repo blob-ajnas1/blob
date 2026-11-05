@@ -32,19 +32,44 @@ class HomeTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<SessionController>();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
           const BlobMark(size: 34),
           const SizedBox(width: 10),
-          // The active role replaces the wordmark: it is the one thing on the
-          // bar the user acts on, so it gets the prominent slot.
           Expanded(
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: ActiveRoleButton(user: user),
-            ),
+            child: user.role == UserRole.buyer
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        session.t('brand_name'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.primaryDark,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      Text(
+                        session.t('brand_agri_market'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  )
+                : Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: ActiveRoleButton(user: user),
+                  ),
           ),
           const SizedBox(width: 8),
           // The header location doubles as the shortcut to "where am I on the
@@ -82,21 +107,20 @@ class _NotificationBell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final market = context.watch<MarketplaceController>();
+    final session = context.watch<SessionController>();
     final pendingMoney =
         market.pendingIncomingPaise(user.id) > 0 ||
         market.pendingOutgoingPaise(user.id) > 0;
     final hasAlert = user.isPending || pendingMoney;
 
     return Semantics(
-      label: hasAlert ? 'Notifications, unread' : 'Notifications',
+      label: session.t(hasAlert ? 'notifications_unread' : 'notifications'),
       button: true,
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () => showSnack(
           context,
-          hasAlert
-              ? 'You have pending items that need attention.'
-              : 'No new notifications.',
+          session.t(hasAlert ? 'notifications_pending' : 'notifications_empty'),
         ),
         child: Padding(
           padding: const EdgeInsets.all(5),
@@ -109,8 +133,8 @@ class _NotificationBell extends StatelessWidget {
                 color: AppColors.primary,
               ),
               if (hasAlert)
-                Positioned(
-                  right: 0,
+                PositionedDirectional(
+                  end: 0,
                   top: 0,
                   child: Container(
                     width: 8,
@@ -186,6 +210,17 @@ class DashboardHeader extends StatelessWidget {
       ),
     };
 
+    if (user.role == UserRole.buyer) {
+      return _BuyerHeader(
+        user: user,
+        firstName: user.name.trim().isEmpty
+            ? session.t('greeting_friend')
+            : _firstName,
+        paidPaise: primaryPaise,
+        toPayPaise: secondaryPaise,
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 18, 14, 18),
       decoration: BoxDecoration(
@@ -238,6 +273,99 @@ class DashboardHeader extends StatelessWidget {
             label: secondaryLabel,
             amountPaise: secondaryPaise,
             amountColor: AppColors.pending,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Buyer-only farm-themed header using the existing ledger and role switcher.
+class _BuyerHeader extends StatelessWidget {
+  const _BuyerHeader({
+    required this.user,
+    required this.firstName,
+    required this.paidPaise,
+    required this.toPayPaise,
+  });
+
+  final AppUser user;
+  final String firstName;
+  final int paidPaise;
+  final int toPayPaise;
+
+  @override
+  Widget build(BuildContext context) {
+    final session = context.watch<SessionController>();
+    return Container(
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 18, 18, 18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: AlignmentDirectional.centerStart,
+          end: AlignmentDirectional.centerEnd,
+          colors: [AppColors.primaryDark, AppColors.primary],
+        ),
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Stack(
+        children: [
+          PositionedDirectional(
+            end: 0,
+            bottom: 0,
+            child: ExcludeSemantics(
+              child: Icon(
+                Icons.agriculture_outlined,
+                size: 94,
+                color: AppColors.textOnPrimary.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${session.t('greeting')}, $firstName',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textOnPrimary,
+                        fontSize: 22,
+                        height: 1.15,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 110),
+                    child: ActiveRoleButton(user: user, compactOnDark: true),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: StatTile(
+                      label: session.t('buyer_paid'),
+                      amountPaise: paidPaise,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: StatTile(
+                      label: session.t('buyer_to_pay'),
+                      amountPaise: toPayPaise,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
@@ -378,10 +506,14 @@ class QuickActionsGrid extends StatelessWidget {
   /// Horizontal inset applied by the enclosing page.
   final double pageInset;
 
+  /// Buyer has four actions and presents them in one compact row.
+  final bool compactRow;
+
   const QuickActionsGrid({
     super.key,
     required this.actions,
     this.pageInset = 16,
+    this.compactRow = false,
   });
 
   static const double _tileWidth = 86;
@@ -389,6 +521,27 @@ class QuickActionsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (compactRow) {
+      return Container(
+        padding: const EdgeInsets.all(7),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var i = 0; i < actions.length; i++) ...[
+                if (i > 0) const SizedBox(width: 6),
+                Expanded(child: actions[i]),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
     final fullWidth = MediaQuery.sizeOf(context).width;
 
     return SizedBox(
@@ -465,6 +618,7 @@ class ListingCard extends StatelessWidget {
   final bool showBuy;
   final bool brokerMode;
   final bool investorMode;
+  final bool photoStyle;
 
   const ListingCard({
     super.key,
@@ -472,23 +626,30 @@ class ListingCard extends StatelessWidget {
     this.showBuy = false,
     this.brokerMode = false,
     this.investorMode = false,
+    this.photoStyle = false,
   });
+
+  void _open(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ListingDetailScreen(
+          listing: listing,
+          brokerMode: brokerMode,
+          investorMode: investorMode,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final session = context.watch<SessionController>();
+    if (photoStyle) return _photoCard(context, session);
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (_) => ListingDetailScreen(
-              listing: listing,
-              brokerMode: brokerMode,
-              investorMode: investorMode,
-            ),
-          ),
-        ),
+        onTap: () => _open(context),
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
@@ -524,7 +685,8 @@ class ListingCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '${listing.quantityQuintal.toStringAsFixed(0)} quintal · ${listing.district}',
+                      '${listing.quantityQuintal.toStringAsFixed(0)} '
+                      '${session.t('quantity_quintal')} · ${listing.district}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -533,19 +695,24 @@ class ListingCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Row(
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
-                          '${Money.format(listing.pricePerQuintalPaise)} / quintal',
+                          '${Money.format(listing.pricePerQuintalPaise)} '
+                          '${session.t('per_quintal')}',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
                             color: AppColors.primary,
                           ),
                         ),
-                        const SizedBox(width: 8),
                         if (listing.status != ListingStatus.active)
-                          StatusPill.text(listing.status.label),
+                          StatusPill.text(
+                            session.t('listing_status_${listing.status.name}'),
+                          ),
                       ],
                     ),
                   ],
@@ -553,6 +720,108 @@ class ListingCard extends StatelessWidget {
               ),
               const Icon(Icons.chevron_right, color: AppColors.textSecondary),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _photoCard(BuildContext context, SessionController session) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          key: ValueKey('buyer-listing-${listing.id}'),
+          onTap: () => _open(context),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: CropThumb(
+                    imageAsset: listing.imageAsset,
+                    cropName: listing.cropName,
+                    width: 72,
+                    height: 72,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        listing.cropName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on_outlined,
+                            size: 15,
+                            color: AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: 3),
+                          Expanded(
+                            child: Text(
+                              '${listing.quantityQuintal.toStringAsFixed(0)} '
+                              '${session.t('quantity_quintal')} · ${listing.district}',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        '${Money.format(listing.pricePerQuintalPaise)} '
+                        '${session.t('per_quintal')}',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: AppColors.primarySoft,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

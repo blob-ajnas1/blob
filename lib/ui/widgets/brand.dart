@@ -1,57 +1,21 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import 'blob_logo.dart';
 
-/// Asset paths for the BLOB brand marks.
-class BrandAssets {
-  BrandAssets._();
-
-  /// Badge only (network ring + wheat/people/arrow motif), transparent bg.
-  static const String mark = 'assets/images/blob_mark.png';
-
-  /// Badge + "Blob" wordmark lockup, transparent bg.
-  static const String lockup = 'assets/images/blob_logo_full.png';
-}
-
-/// The BLOB badge mark.
-///
-/// The supplied artwork is dark-teal on transparent, which reads poorly on the
-/// dark green brand surfaces. Set [onDark] to render it inside a white
-/// rounded tile so it keeps full contrast and colour fidelity anywhere.
+/// Compatibility wrapper for existing mark placements and their sizes.
 class BlobMark extends StatelessWidget {
   final double size;
   final bool onDark;
+
+  /// Retained for callers of the old rounded-tile mark. The new mark is drawn
+  /// directly against its background and does not need a tile.
   final double? radius;
 
   const BlobMark({super.key, this.size = 84, this.onDark = false, this.radius});
 
   @override
-  Widget build(BuildContext context) {
-    final image = Image.asset(
-      BrandAssets.mark,
-      width: onDark ? size * 0.9 : size,
-      height: onDark ? size * 0.9 : size,
-      fit: BoxFit.contain,
-      filterQuality: FilterQuality.medium,
-      errorBuilder: (_, __, ___) => Icon(
-        Icons.eco,
-        size: (onDark ? size * 0.82 : size) * 0.6,
-        color: AppColors.primary,
-      ),
-    );
-
-    if (!onDark) return image;
-
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(radius ?? size * 0.28),
-      ),
-      child: Center(child: image),
-    );
-  }
+  Widget build(BuildContext context) => BlobLogoMark(size: size, onDark: onDark);
 }
 
 /// Badge + wordmark, for splash / welcome hero use.
@@ -61,12 +25,29 @@ class BlobLockup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      BrandAssets.lockup,
+    // Preserve the previous artwork's 441:527 width-to-height relationship.
+    return SizedBox(
       width: width,
-      fit: BoxFit.contain,
-      filterQuality: FilterQuality.medium,
-      errorBuilder: (_, __, ___) => BlobMark(size: width * 0.6),
+      height: width * 527 / 441,
+      child: Column(
+        children: [
+          Expanded(child: Center(child: BlobLogoMark(size: width))),
+          SizedBox(
+            width: width,
+            height: width * 86 / 441,
+            child: const FittedBox(
+              fit: BoxFit.contain,
+              child: Text(
+                'Blob',
+                style: TextStyle(
+                  color: AppColors.brandInk,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

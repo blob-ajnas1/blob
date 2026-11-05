@@ -44,6 +44,15 @@ class AppColors {
     success = palette.success;
   }
 
+  /// Fixed logo colours, independent of the active marketplace/education palette.
+  static const Color brandInk = Color(0xFF14301F);
+  static const Color brandGreen = Color(0xFF1B8A3A);
+  static const Color brandBlue = Color(0xFF1F6FD0);
+  static const Color brandGold = Color(0xFFF2B705);
+  static const Color brandCream = Color(0xFFFBF7EE);
+  static const Color brandGreenOnDark = Color(0xFF43C463);
+  static const Color brandBlueOnDark = Color(0xFF4DA3FF);
+
   /// Warm canvas used by the marketplace onboarding and buyer home.
   static const Color agriCream = Color(0xFFFBF8ED);
 

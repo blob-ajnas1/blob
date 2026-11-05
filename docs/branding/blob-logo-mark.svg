@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="512" height="512" role="img" aria-label="BLOB logo mark">
+<title>BLOB: connecting farms, work and learning</title>
+<defs><clipPath id="m1"><circle cx="102" cy="74" r="36"/></clipPath></defs>
+<g transform="translate(7 0)"><rect x="40" y="38" width="28" height="124" rx="14" fill="#14301F"/><circle cx="102" cy="74" r="36" fill="#1B8A3A"/><circle cx="106" cy="122" r="40" fill="#1F6FD0"/><circle cx="106" cy="122" r="40" fill="#F2B705" clip-path="url(#m1)"/></g>
+</svg>

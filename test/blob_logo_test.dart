@@ -84,19 +84,22 @@ void main() {
         tester,
       ) async {
         final semantics = tester.ensureSemantics();
-        addTearDown(semantics.dispose);
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: Center(child: BlobLogoMark(size: size, onDark: onDark)),
+        try {
+          await tester.pumpWidget(
+            MaterialApp(
+              home: Scaffold(
+                body: Center(child: BlobLogoMark(size: size, onDark: onDark)),
+              ),
             ),
-          ),
-        );
-        final mark = find.byType(BlobLogoMark);
-        expect(mark, findsOneWidget);
-        expect(tester.getSize(mark), Size(size, size));
-        expect(find.bySemanticsLabel('BLOB logo'), findsOneWidget);
-        expect(tester.takeException(), isNull);
+          );
+          final mark = find.byType(BlobLogoMark);
+          expect(mark, findsOneWidget);
+          expect(tester.getSize(mark), Size(size, size));
+          expect(find.bySemanticsLabel('BLOB logo'), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        } finally {
+          semantics.dispose();
+        }
       });
     }
   }
